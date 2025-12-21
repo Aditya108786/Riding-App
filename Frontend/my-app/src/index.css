@@ -1,0 +1,41 @@
+@import "leaflet/dist/leaflet.css";
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* App.css or index.css */
+.leaflet-routing-alt h2 {
+  display: none; /* hides the route summary title */
+}
+
+.live-label {
+  background: #1e40af;
+  color: white;
+  padding: 2px 6px;
+  border-radius: 5px;
+  font-size: 12px;
+  font-weight: 600;
+  border: none;
+}
+
+.pickup-label {
+  background: #16a34a;
+  color: white;
+  padding: 2px 6px;
+  border-radius: 5px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.destination-label {
+  background: #dc2626;
+  color: white;
+  padding: 2px 6px;
+  border-radius: 5px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+
+

@@ -10,7 +10,7 @@ export const Ridepopup = ({
   setdeclineride,
   setriderequestconfirm,
 }) => {
-  const { socket } = useContext(SocketContext);
+  const { socket , setroomid } = useContext(SocketContext);
   const [loading, setLoading] = useState(false);
 
   const user = ridedata?.ridewithuser?.user;
@@ -19,12 +19,15 @@ export const Ridepopup = ({
     try {
       setLoading(true);
 
-      await axios.post(
+    const res =   await axios.post(
         "http://localhost:4000/ride/confirmride",
         { rideId: ridedata.ridewithuser._id },
         { withCredentials: true }
       );
 
+      console.log("roomid from confirmride" , res.data.roomId)
+          setroomid(res.data.roomId)
+          socket.emit("start:chat-room",  res.data.roomId)
       socket?.emit("ride-accepted", {
         rideId: ridedata.ridewithuser._id,
       });

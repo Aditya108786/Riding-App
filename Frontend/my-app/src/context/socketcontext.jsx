@@ -6,6 +6,9 @@ export const SocketContext = createContext(null);
 export const SocketProvider = ({ children }) => {
   const [socket, setSocket] = useState(null);
   const [livelocation , setlivelocation] = useState(null)
+  const [roomId , setroomid] = useState("")
+
+  console.log("room id in the socket context" , roomId)
 
   useEffect(() => {
     const newsocket = io("http://localhost:4000");
@@ -46,7 +49,7 @@ export const SocketProvider = ({ children }) => {
   }, []);
 
   return (
-    <SocketContext.Provider value={{socket , livelocation , setlivelocation}}>
+    <SocketContext.Provider value={{socket , livelocation , setlivelocation , setroomid , roomId}}>
       {children}
     </SocketContext.Provider>
   );

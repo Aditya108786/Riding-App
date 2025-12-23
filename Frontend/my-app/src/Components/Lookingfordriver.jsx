@@ -10,6 +10,8 @@ import { useRef } from "react";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
 import L from 'leaflet';
+import { Sendmessage } from "./Sendmessage";
+
 
 const customCaptainIcon = new L.Icon({
   iconUrl: markerIcon2x,
@@ -25,7 +27,11 @@ export const Lookingfordriver = (props) => {
   const { setridingdata } = useContext(Ridingcontext);
   const [ridestatus, setridestatus] = useState({});
   const [fullAddress, setFullAddress] = useState("");
+  const [roomid , setroomid] = useState(null)
   const navigate = useNavigate();
+  const [messagepanel , setmessagepanel] = useState(false)
+
+  const messageref = useRef()
 
   // Handle ride-confirmed event and set initial driver location + details
   useEffect(() => {
@@ -60,6 +66,22 @@ export const Lookingfordriver = (props) => {
     socket?.on("ride-confirmed", handler);
     return () => socket?.off("ride-confirmed", handler);
   }, [socket, setlivelocation, props]);
+
+
+  useEffect(()=>{
+      
+       console.log("hello jiiii babu")
+    socket.on("start:chat" , (roomId)=>{
+          setroomid(roomId)
+         socket.emit("start:chat-room" , 
+          roomId
+         )
+    })
+    
+
+  },[socket])
+
+  
 
   useEffect(() => {
     const handler = (data) => {
@@ -97,6 +119,9 @@ export const Lookingfordriver = (props) => {
     socket?.on("captain-live-location", liveHandler);
     return () => socket?.off("captain-live-location", liveHandler);
   }, [socket, setlivelocation]);
+
+
+  
 
   return (
     <div className="w-full h-full flex flex-col max-h-[90vh] md:max-h-screen">
@@ -183,11 +208,21 @@ export const Lookingfordriver = (props) => {
                 <i className="ri-phone-fill"></i> Call
               </a>
               <button 
-                onClick={() => window.open(`/track?ride=${ridestatus?.ride?._id || ""}`, "_self")} 
+                onClick={() => setmessagepanel(true)} 
                 className="flex-1 bg-gray-100 hover:bg-gray-200 active:bg-gray-300 text-black py-2.5 rounded-xl text-sm md:text-base font-bold transition-all"
               >
-                Track
+                Message
               </button>
+
+              {
+                messagepanel && (
+<div ref={messageref}>
+               <Sendmessage roomid={roomid} />
+              </div>
+                )
+              }
+              
+              
             </div>
           </div>
         </div>

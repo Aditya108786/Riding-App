@@ -3,7 +3,8 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import "remixicon/fonts/remixicon.css";
 import { CaptaindataContext } from "../context/captaincontext";
-
+import { SocketContext } from "../context/socketcontext";
+import {Sendmessagecaptain} from './Captainmessage'
 const Confirmridepopup = (props) => {
   const navigate = useNavigate();
   const [otp, setotp] = useState("");
@@ -13,8 +14,11 @@ const Confirmridepopup = (props) => {
   if (!props?.ridedata?.ridewithuser) return null;
 
   const { ridewithuser } = props.ridedata;
+  const {socket , roomId} = useContext(SocketContext)
 
   const { setCurrentRide } = useContext(CaptaindataContext);
+
+  console.log("hey baby hey babu" ,roomId)
 
   const submithandler = async (e) => {
     e.preventDefault();
@@ -137,6 +141,10 @@ const Confirmridepopup = (props) => {
           Cancel
         </button>
       </form>
+
+      <div>
+        <Sendmessagecaptain roomId={roomId} />
+      </div>
     </div>
   );
 };

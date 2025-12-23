@@ -55,6 +55,20 @@ function initializesocket(server){
     }
 })
 
+
+socket.on("start:chat-room" , (roomId)=>{
+     socket.join(roomId)
+     console.log(`SocketId${socket.id} joined from roomId ${roomId}`)
+})
+
+socket.on("send:message" ,({roomId, sender, message}) =>{
+     io.to(roomId).emit("receive:message" , {
+        sender,
+        message,
+        time:new Date().toLocaleTimeString()
+     })
+})
+
         // Listen for captain location updates and forward them to the user of this ride
         socket.on('captain-location', (data) => {
             try {
@@ -73,6 +87,9 @@ function initializesocket(server){
                 console.error('Error handling captain-location', err);
             }
         });
+
+
+       
 
         socket.on('disconnect' , ()=>{
             console.log(`client disconnected ${socket.id}`)

@@ -59,6 +59,8 @@ module.exports.ConfirmRide = async(req,res)=>{
         const {rideId } = req.body
         const captain = req.captain
         console.log("rideId9" , "captain" , rideId,captain)
+        const roomId = `chat_${rideId}`
+        console.log("Room id" , roomId)
 
         if(!rideId || !captain){
              throw new Error("All fields required")
@@ -66,9 +68,12 @@ module.exports.ConfirmRide = async(req,res)=>{
 
         const ride = await rideservice.confirmRide(rideId,captain)
 
+
         if(!ride){
              throw new Error("Ride not found in controller")
         }
+
+        
          console.log("jiiiii", ride.user.socketId)
         const userId = ride.user._id.toString()
         console.log("user jiiii",userId)
@@ -77,13 +82,22 @@ module.exports.ConfirmRide = async(req,res)=>{
          const io = getIO()
          console.log("io.sockets.sockets:", io.sockets.sockets);
         
+         const captainsocketId = captain.socketId
+        if(captainsocketId){
+             io.sockets.sockets.get(captainsocketId).join(roomId)
+        }
+
+        io.to(ride.user.socketId).emit("start:chat", 
+         roomId
+        )
+
 
         io.to(ride.user.socketId ).emit("ride-confirmed" ,{
            message:"Ride accepted",
            ride
         })
 
-        return res.status(200).json(ride)
+        return res.status(200).json({roomId, ride})
         
 }
 

@@ -71,6 +71,30 @@ module.exports.getCaptainprofile = async(req,res,next)=>{
     res.status(200).json(captain)
 }
 
+module.exports.reset_password = async(req,res)=>{
+      const {email, password} = req.body
+
+      const errors = validationResult(req)
+      if(!errors.isEmpty()){
+         return res.status(400).json({errors:errors.array()})
+      }
+
+      const hashPassword = await captainModel.hashpassword(password)
+
+      const captain = await captainModel.findOne({email:email})
+        
+      if(!captain){
+         return res.status(401).json({message:"Invalid email"})
+      }
+
+      captain.password = hashPassword
+      await captain.save()
+      return res.status(200).json(captain)
+
+      
+
+}
+
 
 
 module.exports.logoutCaptain = async(req,res,next) =>{

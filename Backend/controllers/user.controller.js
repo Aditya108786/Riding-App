@@ -63,6 +63,33 @@ module.exports.getUserProfile = async(req,res,next)=>{
     res.status(200).json({user:req.user})
 }
 
+module.exports.reset_password = async(req,res)=>{
+        const {email , password} = req.body
+
+        const errors = validationResult(req)
+
+        if(!errors.isEmpty()){
+            return res.status(400).json({errors:errors.array()})
+        }
+
+        const hashpassword = await usermodel.hashpassword(password)
+        const user = await usermodel.findOne({email:email} )
+
+        if(!user){
+            return res.status(401).json({message:"Invalid email"})
+        }
+
+         user.password = hashpassword
+         await user.save()
+
+         return res.status(200).json(user)
+
+        
+                 
+
+        
+}
+
 module.exports.logoutUser = async(req,res,next)=>{
     res.clearCookie('token')
     const token = req.cookies.token || req.headers.authorization?.split(" ")[1]

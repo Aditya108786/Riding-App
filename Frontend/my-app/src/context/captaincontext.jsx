@@ -23,7 +23,7 @@ export const CaptainContext = ({children}) =>{
           useEffect(()=>{
                const fetchcaptain = async()=>{
                       const res = await axios.get("http://localhost:4000/captain/profile",{withCredentials:true})
-                      console.log("context" , res.data)
+                     
                       if(res.status === 200){
                         setcaptaindata(res.data)
                       }
@@ -31,7 +31,7 @@ export const CaptainContext = ({children}) =>{
 
                fetchcaptain()
           },[])
-          console.log("cap" , captain)
+         
           
           const value ={
             captain,
@@ -46,7 +46,7 @@ export const CaptainContext = ({children}) =>{
             setCurrentRide,
 
           }
-          console.log(value)
+          
 
           return (
             <CaptaindataContext.Provider value={value}> 

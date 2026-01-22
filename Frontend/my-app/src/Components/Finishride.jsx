@@ -10,7 +10,7 @@ const Finishride = (props) => {
   const navigate = useNavigate();
    const {ridingdata} = useContext(Ridingcontext)
     const { currentRide } = useContext(CaptaindataContext);
-   console.log("hello brooooo",currentRide)
+   
 
 
    const navigatetohome = ()=>{
@@ -27,7 +27,7 @@ const Finishride = (props) => {
       )
 
       if(res.status == 200){
-            console.log("ride finished",res.data)
+            console.log("ride finished")
       }
   }
 

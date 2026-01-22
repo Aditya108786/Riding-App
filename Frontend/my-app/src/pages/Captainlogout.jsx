@@ -11,7 +11,7 @@ export const Captainlogout = () => {
       try {
         const response = await axios.get("http://localhost:4000/captain/logout", { withCredentials: true });
         if (response.status === 200) {
-            console.log(response.status)
+            
           navigate("/Captainlogin");
         }
       } catch (error) {

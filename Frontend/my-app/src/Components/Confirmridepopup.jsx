@@ -18,7 +18,7 @@ const Confirmridepopup = (props) => {
 
   const { setCurrentRide } = useContext(CaptaindataContext);
 
-  console.log("hey baby hey babu" ,roomId)
+  
 
   const submithandler = async (e) => {
     e.preventDefault();
@@ -43,7 +43,7 @@ const Confirmridepopup = (props) => {
       );
 
       if (res.status === 200) {
-        console.log(res.data)
+        
         // Save current ride in context so CaptainRiding can use it
         setCurrentRide(res.data);
         navigate("/Captain-riding");

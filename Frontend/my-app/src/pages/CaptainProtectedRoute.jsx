@@ -12,7 +12,7 @@ const CaptainProtectedRoute = ({ children }) => {
     const checkAuth = async () => {
       try {
         const res = await axios.get("http://localhost:4000/captain/auth", { withCredentials: true });
-        console.log(res.status)
+        
         if (isMounted && res.status === 200) {
           setauthenticated(true);
         }
@@ -31,7 +31,7 @@ const CaptainProtectedRoute = ({ children }) => {
     };
   }, []);
 
-  console.log("authenticated" , authenticated , "loading" , loading) 
+  
 
   if (loading) return <div>Loading...</div>;
   if (!authenticated) return <Navigate to="/Captainlogin" replace />;

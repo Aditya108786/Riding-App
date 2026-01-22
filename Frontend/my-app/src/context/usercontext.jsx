@@ -29,7 +29,7 @@ export const  UserContext = ({children}) =>{
             const res = await axios.get("http://localhost:4000/user/profile" , {
                   withCredentials:true
             })
-            console.log("usercontext",res.data)
+            
             if(res.status == 200){
                 setuserdata(res.data)
             }

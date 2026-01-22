@@ -25,7 +25,7 @@ export const Ridepopup = ({
         { withCredentials: true }
       );
 
-      console.log("roomid from confirmride" , res.data.roomId)
+      
           setroomid(res.data.roomId)
           socket.emit("start:chat-room",  res.data.roomId)
       socket?.emit("ride-accepted", {

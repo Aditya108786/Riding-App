@@ -7,8 +7,7 @@ const {getIO , sendmessagetosocketid, getuserSocketId} = require('../socket')
 module.exports.createRide = async(req , res)=>{
      const { vehicleType, pickup , destination} = req.body
      
-       console.log("ID" , req.user)
-       console.log("id" , req.user._id)
+       
 
      try {
         const ride = await rideservice.createride({pickup , destination , user:req.user._id,vehicleType })
@@ -21,10 +20,10 @@ module.exports.createRide = async(req , res)=>{
            
 
            const captains = await mapservice.getCaptaininTheRadius(pickup[1] , pickup[0] , 10)
-           console.log(captains)
+           
            ride.OTP = null
            const ridewithuser = await ridemodel.findOne({_id:ride._id}).populate('user' , '-password -resetpasswordtoken -resetpasswordexpire')
-           console.log("ride with user" , ridewithuser)
+          
            const io = getIO()
            captains.forEach((captain)=>{
                   io.to(captain.socketId).emit("newride" , {
@@ -44,10 +43,10 @@ module.exports.createRide = async(req , res)=>{
 
 module.exports.getfare = async(req ,res)=>{
       const {pickup, destination , vehicleType} = req.body
-             console.log( "fare",pickup, destination)
+             
       try {
           const fare = await rideservice.getprice({pickup, destination, vehicleType})
-           console.log("price", fare)
+          
           return res.status(201).json(fare)
       } catch (error) {
          return res.status(500).json({message:error.message})
@@ -58,9 +57,9 @@ module.exports.getfare = async(req ,res)=>{
 module.exports.ConfirmRide = async(req,res)=>{
         const {rideId } = req.body
         const captain = req.captain
-        console.log("rideId9" , "captain" , rideId,captain)
+        
         const roomId = `chat_${rideId}`
-        console.log("Room id" , roomId)
+       
 
         if(!rideId || !captain){
              throw new Error("All fields required")
@@ -74,13 +73,13 @@ module.exports.ConfirmRide = async(req,res)=>{
         }
 
         
-         console.log("jiiiii", ride.user.socketId)
+        
         const userId = ride.user._id.toString()
-        console.log("user jiiii",userId)
+       
          const socketId = getuserSocketId(userId)
-         console.log(socketId)
+         
          const io = getIO()
-         console.log("io.sockets.sockets:", io.sockets.sockets);
+         
         
          const captainsocketId = captain.socketId
         if(captainsocketId){

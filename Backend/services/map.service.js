@@ -10,13 +10,13 @@ module.exports.addresscoordinate = async(address)=>{
          }
    })
 
-   console.log(response.data)
+  
    return response.data
 
 }
 
 module.exports.getdistancetime = async(origin , destination)=>{
-          console.log(origin, destination)
+          
     const apikey = process.env.API_KEY
    
 
@@ -59,11 +59,11 @@ module.exports.getsuggestions = async(address)=>{
             }
          }
     )
-    console.log(res.data)
+   
 }
 
 module.exports.getCaptaininTheRadius = async(ltd,lng, radius)=>{
-           console.log("radius",ltd , lng,radius)
+           
     const captains = await captainModel.find({
         location:{
             $geoWithin:{
@@ -72,7 +72,7 @@ module.exports.getCaptaininTheRadius = async(ltd,lng, radius)=>{
         }
        
     })
-    console.log(captains)
+   
 
     return captains
        
@@ -81,7 +81,7 @@ module.exports.getCaptaininTheRadius = async(ltd,lng, radius)=>{
 module.exports.coordinatesToAddress = async (lat,lng) => {
 
       
-       console.log("latlngbody" , lat , lng)
+      
     try {
         const apiKey = process.env.API_KEY;
               console.log("latlng" , lat , lng)

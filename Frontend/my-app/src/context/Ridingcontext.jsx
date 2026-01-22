@@ -7,7 +7,7 @@ export const Ridingcontext = createContext()
 export const Contextprovider = ({children})=>{
       const [ridingdata , setridingdata] = useState()
 
-         console.log(ridingdata)
+         
 
       return(
          <Ridingcontext.Provider value={{ridingdata , setridingdata}}>

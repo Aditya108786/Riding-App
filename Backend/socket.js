@@ -26,8 +26,8 @@ function initializesocket(server){
 
 
        socket.on('join', async (data) => {
-    console.log("JOIN RAW DATA:", data)
-    console.log("userType:", data?.userType, typeof data?.userType)
+   
+    
 
     const { userId, userType } = data
 
@@ -39,7 +39,7 @@ function initializesocket(server){
         })
 
         usersockets[userId] = socket.id
-        console.log("mistkae", socket.id)
+       
 
     } else if (userType === 'captain') {
         console.log("ENTERED CAPTAIN BLOCK")
@@ -49,7 +49,7 @@ function initializesocket(server){
         })
 
         captainsockets[userId] = socket.id
-        console.log("captainmistake", socket.id)
+       
     } else {
         console.log("❌ INVALID userType:", userType)
     }

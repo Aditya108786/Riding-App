@@ -7,7 +7,7 @@ const captainModel = require('../models/captain.model')
 
 module.exports.authUser = async(req,res,next)=>{
     const token = req.cookies.token || req.headers.authorization?.split(" ")[1]
-    console.log("token ji",token)
+   
     if(!token){
         return res.status(401).json({message: "Unauthorized access"})
 
@@ -20,7 +20,7 @@ module.exports.authUser = async(req,res,next)=>{
 
 try {
      const decoded = jwt.verify(token, process.env.JWT_SECRET)
-     console.log("DECODEED",decoded)
+     
        req.user = await usermodel.findById(decoded._id)
        console.log(req.user)
        
@@ -35,7 +35,7 @@ try {
 
 module.exports.authCaptain = async function(req,res,next){
     const token = req.cookies.captaintoken || req.headers.authorization?.split(" ")[1]
-    console.log(token)
+    
       
     if(!token){
         return res.status(401).json({message:"Unauthorized access"})

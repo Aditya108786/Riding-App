@@ -8,7 +8,7 @@ export const SocketProvider = ({ children }) => {
   const [livelocation , setlivelocation] = useState(null)
   const [roomId , setroomid] = useState("")
 
-  console.log("room id in the socket context" , roomId)
+  
 
   useEffect(() => {
     const newsocket = io("http://localhost:4000");
@@ -31,7 +31,7 @@ export const SocketProvider = ({ children }) => {
         const lng = loc?.lng ?? loc?.lon ?? loc?.longitude ?? null;
         if (lat != null && lng != null) {
           setlivelocation({ lat, lng });
-          console.log("updated livelocation from socket:", { lat, lng });
+         
         } else {
           console.warn("captain-live-location payload missing coords", data);
         }

@@ -36,7 +36,7 @@ export const Lookingfordriver = (props) => {
   // Handle ride-confirmed event and set initial driver location + details
   useEffect(() => {
     const handler = async (data) => {
-      console.log("ride status update", data);
+     
       setridestatus(data);
 
       if (data?.ride?.status === "Accepted") {
@@ -70,7 +70,7 @@ export const Lookingfordriver = (props) => {
 
   useEffect(()=>{
       
-       console.log("hello jiiii babu")
+       
     socket.on("start:chat" , (roomId)=>{
           setroomid(roomId)
          socket.emit("start:chat-room" , 
@@ -85,7 +85,7 @@ export const Lookingfordriver = (props) => {
 
   useEffect(() => {
     const handler = (data) => {
-      console.log("ridestarted bro", data);
+     
       setridingdata(data);
       navigate("/user-riding");
     };

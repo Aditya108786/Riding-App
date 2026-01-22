@@ -14,7 +14,7 @@ async function getfare(pickup , destination){
     //console.log(distandtime)
      
     const dist =   distandtime.routes[0].summary.distance
-    console.log(dist)
+   
     const time = distandtime.routes[0].summary.duration
             
     const baseFare = {

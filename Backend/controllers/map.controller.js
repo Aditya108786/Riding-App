@@ -11,7 +11,7 @@ module.exports.getcoordinate = async(req,res)=>{
        
       try {
          const coordinates = await mapservice.addresscoordinate(address)
-         console.log(coordinates.features)
+        
          if(!coordinates){
             return res.status(404).json({message:"coordinates not found"})
          }
@@ -25,14 +25,14 @@ module.exports.getcoordinate = async(req,res)=>{
 module.exports.getdistancetime = async(req,res)=>{
              const {arrpickup, arrdestination} = req.body
             
-            console.log(arrpickup, arrdestination)
+           
              if(!arrpickup && !arrdestination){
                 return res.json({message:"pickup and destination required"})
              }
 
              try {
                  const response = await mapservice.getdistancetime(arrpickup, arrdestination) 
-                  console.log(response.routes[0].summary)
+                  
                   res.status(200).json(response.routes)
              } catch (error) {
                 console.error(error.message)

@@ -25,7 +25,7 @@ const ChangePassword = () => {
 
     try {
       // Replace with your actual password reset endpoint
-      const response = await axios.post("http://localhost:4000/user/reset-password", {
+      const response = await axios.post("http://localhost:5000/user/reset-password", {
         password: newPassword,
       });
 

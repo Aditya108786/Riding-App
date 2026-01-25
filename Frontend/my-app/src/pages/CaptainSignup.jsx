@@ -35,11 +35,11 @@ const CaptainSignup = () => {
     }
 
     try {
-      const response = await axios.post(`${import.meta.env.VITE_BASE_URL}/captains/register`, captainData)
+      const response = await axios.post(`${import.meta.env.VITE_BASE_URL}/captain/register`, captainData)
       if (response.status === 201) {
         setcaptaindata(response.data.captain)
         localStorage.setItem('token', response.data.token)
-        navigate('/captain-home')
+        navigate('/CaptainHome')
       }
     } catch (err) {
       console.error("Signup failed", err)

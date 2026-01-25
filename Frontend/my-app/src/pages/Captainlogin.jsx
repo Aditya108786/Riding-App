@@ -20,7 +20,7 @@ const Captainlogin = () => {
 
     try {
       const response = await axios.post(
-        "http://localhost:4000/captain/login",
+        "http://localhost:5000/captain/login",
         { email, password },
         { withCredentials: true }
       );

@@ -21,7 +21,7 @@ const ChangePasswordModal = ({type, onClose }) => {
     setError(null);
 
     try {
-          const endpoint = type === "captain" ? "http://localhost:4000/captain/reset_password" : "http://localhost:4000/user/reset_password"
+          const endpoint = type === "captain" ? "http://localhost:5000/captain/reset_password" : "http://localhost:4000/user/reset_password"
 
 
       const response = await axios.post(endpoint, {

@@ -51,7 +51,7 @@ export const Lookingfordriver = (props) => {
         try {
           if (lat != null && lng != null) {
             const response = await axios.post(
-              "http://localhost:4000/maps/getfulladdress",
+              "http://localhost:5000/maps/getfulladdress",
               { lat, lng },
               { withCredentials: true }
             );
@@ -98,14 +98,16 @@ export const Lookingfordriver = (props) => {
   // Listen for continuous captain location updates and update map + address
   useEffect(() => {
     const liveHandler = async (data) => {
+         
       const loc = data?.location || data;
       const lat = loc?.ltd ?? loc?.lat ?? null;
       const lng = loc?.lng ?? loc?.lon ?? null;
+      console.log("Live location" , lat , lng)
       if (lat != null && lng != null) {
         setlivelocation({ lat, lng });
         try {
           const response = await axios.post(
-            "http://localhost:4000/maps/getfulladdress",
+            "http://localhost:5000/maps/getfulladdress",
             { lat, lng },
             { withCredentials: true }
           );

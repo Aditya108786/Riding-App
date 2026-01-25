@@ -6,7 +6,7 @@ export const Logoutuser =  ()=>{
   const navigate = useNavigate()
     useEffect(()=>{
          const userlogout = async()=>{
-              const res =   await axios.post("http://localhost:4000/user/logout" ,{}, {withCredentials:true})
+              const res =   await axios.post("http://localhost:5000/user/logout" ,{}, {withCredentials:true})
     
     if(res.status === 200){
         localStorage.removeItem('token')

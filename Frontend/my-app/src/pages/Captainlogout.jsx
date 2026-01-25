@@ -9,7 +9,7 @@ export const Captainlogout = () => {
   useEffect(() => {
     const logout = async () => {
       try {
-        const response = await axios.get("http://localhost:4000/captain/logout", { withCredentials: true });
+        const response = await axios.get("http://localhost:5000/captain/logout", { withCredentials: true });
         if (response.status === 200) {
             
           navigate("/Captainlogin");

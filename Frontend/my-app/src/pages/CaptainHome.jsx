@@ -28,12 +28,15 @@ const CaptainHome = () => {
   const [ridedata, setridedata] = useState(null);
   const [pickupaddress, setpickupaddress] = useState("");
   const [destinationaddress, setdestinationaddress] = useState("");
-
+  const [livelocation , setLivelocation] = useState(null)
   const popupref = useRef(null);
   const rideconfirmref = useRef(null);
 
   const { socket } = useContext(SocketContext);
   const { captain } = useContext(CaptaindataContext);
+  
+  console.log(captain)
+  console.log(ridedata)
 
   useGSAP(() => {
     if (!popupref.current) return;
@@ -54,6 +57,61 @@ const CaptainHome = () => {
     });
   }, [riderequestconfirm]);
 
+  useEffect(()=>{
+     
+    if(!captain || !socket){
+         return
+    }
+      
+    const watchId = navigator.geolocation.watchPosition((position)=>{
+                  
+          
+          
+              setLivelocation({
+                lat:position.coords.latitude,
+                lng:position.coords.longitude
+              })
+    },
+    (error)=>{
+       console.error("Location error" , error)
+    },
+
+    {
+        enableHighAccuracy: true,
+        maximumAge: 0,
+        timeout: 5000
+      }
+  
+  
+  )
+
+  return ()=>{
+     navigator.geolocation.clearWatch(watchId)
+  }
+
+
+  },[captain,socket])
+ console.log(livelocation)
+
+  useEffect(()=>{
+           
+    if(!socket || !captain?._id || !ridedata || !livelocation){
+                return;
+    }
+
+    socket.emit("captain-location" , {
+         userId:ridedata.ridewithuser.user._id,
+         captainId:captain._id,
+         lat:livelocation.lat,
+         lng:livelocation.lng
+    })
+      
+
+
+  },[livelocation , ridedata , captain?._id , socket])
+
+
+
   useEffect(() => {
     if (!socket || !captain?._id) return;
     socket.emit("join", { userId: captain._id, userType: "captain" });
@@ -63,12 +121,13 @@ const CaptainHome = () => {
       const [destLng, destLat] = data.ridewithuser.destination;
       try {
         const [pickupAddr, destAddr] = await Promise.all([
-          axios.post("http://localhost:4000/maps/getfulladdress", { lat: pickupLat, lng: pickupLng }, { withCredentials: true }).then(res => res.data.address),
-          axios.post("http://localhost:4000/maps/getfulladdress", { lat: destLat, lng: destLng }, { withCredentials: true }).then(res => res.data.address),
+          axios.post("http://localhost:5000/maps/getfulladdress", { lat: pickupLat, lng: pickupLng }, { withCredentials: true }).then(res => res.data.address),
+          axios.post("http://localhost:5000/maps/getfulladdress", { lat: destLat, lng: destLng }, { withCredentials: true }).then(res => res.data.address),
         ]);
         setpickupaddress(pickupAddr);
         setdestinationaddress(destAddr);
         setridedata(data);
+        console.log(data)
         setdeclineride(false);
       } catch (err) { console.error(err); }
     };
@@ -82,10 +141,10 @@ const CaptainHome = () => {
       
       {/* 70% SECTION: ACTUAL LIVE MAP */}
       <div className="h-[70%] w-full relative z-0 bg-gray-100">
-        {captain?.location ? (
+        {livelocation? (
           <LiveMap 
-            lat={Number(captain.location.ltd || captain.location.lat)} 
-            lng={Number(captain.location.lng || captain.location.lon)} 
+            lat={Number(livelocation.lat)} 
+            lng={Number(livelocation.lng)} 
             icon={customCaptainIcon} 
             showCircle={true} 
           />

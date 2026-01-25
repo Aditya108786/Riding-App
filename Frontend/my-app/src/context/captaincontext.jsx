@@ -22,7 +22,7 @@ export const CaptainContext = ({children}) =>{
 
           useEffect(()=>{
                const fetchcaptain = async()=>{
-                      const res = await axios.get("http://localhost:4000/captain/profile",{withCredentials:true})
+                      const res = await axios.get("http://localhost:5000/captain/profile",{withCredentials:true})
                      
                       if(res.status === 200){
                         setcaptaindata(res.data)

@@ -44,8 +44,8 @@ const CaptainRiding = () => {
       const [destLng, destLat] = currentRide.destination;
       try {
         const [pickupRes, destRes] = await Promise.all([
-          axios.post("http://localhost:4000/maps/getfulladdress", { lat: pickupLat, lng: pickupLng }, { withCredentials: true }),
-          axios.post("http://localhost:4000/maps/getfulladdress", { lat: destLat, lng: destLng }, { withCredentials: true }),
+          axios.post("http://localhost:5000/maps/getfulladdress", { lat: pickupLat, lng: pickupLng }, { withCredentials: true }),
+          axios.post("http://localhost:5000/maps/getfulladdress", { lat: destLat, lng: destLng }, { withCredentials: true }),
         ]);
         setPickupAddr(pickupRes.data.address);
         setDropAddr(destRes.data.address);
@@ -61,25 +61,30 @@ const CaptainRiding = () => {
     popupAnchor: [0, -40], shadowUrl: markerShadow, shadowSize: [41, 41],
   });
 
-  useEffect(() => {
-    if (!socket || !currentRide?.ridewithuser) return;
-    const liveHandler = (data) => {
-      if (data.rideId && currentRide.ridewithuser._id !== data.rideId) return;
-      setLat(data.lat); setLng(data.lng);
-    };
-    socket.on("captain-live-location", liveHandler);
-    if (navigator.geolocation) {
-      watchIdRef.current = navigator.geolocation.watchPosition((pos) => {
-        const { latitude, longitude } = pos.coords;
-        setLat(latitude); setLng(longitude);
-        socket.emit("captain-location", { rideId: currentRide.ridewithuser._id, lat: latitude, lng: longitude, userId: currentRide.ridewithuser.user?._id });
-      });
+  useEffect(()=>{
+         const watchId = navigator.geolocation.watchPosition((position)=>{
+                 
+               setLat(position.coords.latitude)
+               setLng(position.coords.longitude)
+         },
+
+         (error)=>{
+             console.error("Location error" , error)
+         },
+
+         
+          {
+      enableHighAccuracy: true,
+      maximumAge: 0,
+      timeout: 10000,
     }
-    return () => {
-      socket.off("captain-live-location", liveHandler);
-      if (watchIdRef.current) navigator.geolocation.clearWatch(watchIdRef.current);
-    };
-  }, [socket, currentRide]);
+         
+        
+        )
+
+        return ()=> {navigator.geolocation.clearWatch(watchId)}
+         
+  },[socket])
 
   const CaptainMapControl = ({ deps = [] }) => {
     const map = useMap();

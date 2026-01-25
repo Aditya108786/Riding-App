@@ -11,7 +11,7 @@ const UserProtectedRoute = ({ children }) => {
 
     const checkAuth = async () => {
       try {
-        const res = await axios.get("http://localhost:4000/user/auth", { withCredentials: true });
+        const res = await axios.get("http://localhost:5000/user/auth", { withCredentials: true });
         if (isMounted && res.status === 200) setAuthenticated(true);
       } catch (err) {
         console.error(err.response?.data || err.message);

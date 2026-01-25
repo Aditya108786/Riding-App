@@ -1,7 +1,7 @@
 const rideservice  = require('../services/ride.services')
 const mapservice = require('../services/map.service')
 const ridemodel = require('../models/ride.model')
-const {getIO , sendmessagetosocketid, getuserSocketId} = require('../socket')
+const {getIO , sendmessagetosocketid, getuserSocketId  , captainsockets} = require('../socket')
 
 
 module.exports.createRide = async(req , res)=>{
@@ -20,13 +20,15 @@ module.exports.createRide = async(req , res)=>{
            
 
            const captains = await mapservice.getCaptaininTheRadius(pickup[1] , pickup[0] , 10)
-           
+           console.log("captains" , captains)
            ride.OTP = null
            const ridewithuser = await ridemodel.findOne({_id:ride._id}).populate('user' , '-password -resetpasswordtoken -resetpasswordexpire')
-          
+           // console.log("hrsd" , ridewithuser)
            const io = getIO()
            captains.forEach((captain)=>{
-                  io.to(captain.socketId).emit("newride" , {
+            const socketId = captainsockets[captain._id.toString()];
+            console.log("hello bro",socketId);
+                  io.to(socketId).emit("newride" , {
                      
                      message:'A new ride request',
                      ridewithuser

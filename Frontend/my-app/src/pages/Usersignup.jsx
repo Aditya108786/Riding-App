@@ -26,12 +26,12 @@ const Usersignup = () => {
         }
 
         try {
-            const res = await axios.post(`${import.meta.env.VITE_BASE_URL}/users/register`, newuser)
+            const res = await axios.post(`${import.meta.env.VITE_BASE_URL}/user/register`, newuser)
             if (res.status === 201) {
                 const { user, token } = res.data
                 setuserdata(user)
                 localStorage.setItem('token', token)
-                navigate('/home')
+                navigate('/Userhome')
             }
         } catch (err) {
             console.error("Registration failed", err)

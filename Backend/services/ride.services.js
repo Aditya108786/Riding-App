@@ -49,9 +49,9 @@ async function getfare(pickup , destination){
 function getOTP(num){
     function generateOTP(num) {
   // Check if crypto.randomInt exists (Node >=14.10)
-  if (typeof crypto.randomInt === "function") {
+  /*if (typeof crypto.randomInt === "function") {
     return crypto.randomInt(Math.pow(10, num - 1), Math.pow(10, num)).toString();
-  }
+  }*/
 
   // Fallback for older Node versions
   const otp = Math.floor(

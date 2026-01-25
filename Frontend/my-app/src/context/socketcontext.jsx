@@ -11,7 +11,7 @@ export const SocketProvider = ({ children }) => {
   
 
   useEffect(() => {
-    const newsocket = io("http://localhost:4000");
+    const newsocket = io("http://localhost:5000");
     setSocket(newsocket); // ✅ store it in state
 
     newsocket.on("connect", () => {

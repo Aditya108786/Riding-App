@@ -12,10 +12,17 @@ function getuserSocketId(userId){
     return usersockets[userId]
 }
 
+function getcaptainsocket(captainId){
+     return captainsockets[captainId]
+}
+
 function initializesocket(server){
     io = socketIO(server,{
         cors:{
-            origin:'*',
+            origin: [
+            "http://localhost:5173",
+            "https://cj95bg1g-5173.inc1.devtunnels.ms"
+        ],
             methods:['GET' , "POST"]
 
         }
@@ -70,19 +77,28 @@ socket.on("send:message" ,({roomId, sender, message}) =>{
 })
 
         // Listen for captain location updates and forward them to the user of this ride
-        socket.on('captain-location', (data) => {
+        socket.on('captain-location', async(data) => {
             try {
-                const { userId, rideId, lat, lng } = data || {};
-                if (!userId) return;
-
+                const { userId,captainId, rideId, lat, lng } = data || {};
+               
+                  console.log("kaun",captainId)
+                  console.log("Live location" , lat , lng)
                 const userSocketId = usersockets[userId];
-                if (userSocketId) {
-                    io.to(userSocketId).emit('captain-live-location', {
-                        rideId,
-                        lat,
-                        lng,
-                    });
-                }
+                  
+        io.to(userSocketId).emit("captain-live-location" , {
+              lat,
+              lng
+        })
+
+             const captain = await captainModel.findByIdAndUpdate(captainId , {
+                  location:{
+                       ltd:lat,
+                       lng:lng
+                  }
+             })
+
+
+                
             } catch (err) {
                 console.error('Error handling captain-location', err);
             }
@@ -124,5 +140,5 @@ function getIO(){
     return io
 }
 
-module.exports = { initializesocket, sendmessagetosocketid , getIO , getuserSocketId}
+module.exports = { initializesocket, sendmessagetosocketid , getIO , getuserSocketId , captainsockets}
 

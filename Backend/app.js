@@ -12,7 +12,7 @@ const app = express();
 
 // CORS
 app.use(cors({
-    origin: ["http://localhost:5173" ,"https://fzv1kqfv-5173.inc1.devtunnels.ms"],
+    origin: ["http://localhost:5173" ,"https://cj95bg1g-5173.inc1.devtunnels.ms"],
     credentials: true
 }));
 

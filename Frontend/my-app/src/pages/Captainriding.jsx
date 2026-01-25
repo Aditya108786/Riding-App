@@ -26,6 +26,8 @@ const CaptainRiding = () => {
   const [lat, setLat] = useState(28.4595);
   const [lng, setLng] = useState(77.0266);
   const watchIdRef = useRef(null);
+  
+ console.log("currentride" , currentRide)
 
   useGSAP(() => {
     if (!finishrideref.current) return;
@@ -62,10 +64,18 @@ const CaptainRiding = () => {
   });
 
   useEffect(()=>{
+        console.log("currentride" , currentRide)
          const watchId = navigator.geolocation.watchPosition((position)=>{
                  
                setLat(position.coords.latitude)
                setLng(position.coords.longitude)
+
+               socket.emit("captain-location" , {
+                    captainId:currentRide.captain._id,
+                    userId:currentRide.user._id,
+                    lat:position.coords.latitude,
+                    lng:position.coords.longitude
+               })
          },
 
          (error)=>{

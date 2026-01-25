@@ -50,6 +50,7 @@ export const Ridinguser = () => {
 
       if (lat != null && lng != null) {
         setlivelocation?.({ lat, lng });
+        console.log(lat,lng)
         try {
           const res = await axios.post("http://localhost:5000/maps/getfulladdress", { lat, lng }, { withCredentials: true });
           setFullAddress(res.data.address);

@@ -8,7 +8,7 @@ const Captaindetails = (props) => {
 
   return (
     <div className="h-full w-full flex flex-col justify-between">
-      {/* Profile Row */}
+      
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
           <img

@@ -12,7 +12,9 @@ export const SocketProvider = ({ children }) => {
 
   useEffect(() => {
     const newsocket = io(`${import.meta.env.VITE_BASE_URL}` ,{
-       withCredentials:true
+       withCredentials:true,
+        transports: ["websocket"], // 🔥 VERY IMPORTANT
+      autoConnect: true
     });
     setSocket(newsocket); // ✅ store it in state
 

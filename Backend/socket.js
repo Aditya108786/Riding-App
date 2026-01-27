@@ -19,12 +19,9 @@ function getcaptainsocket(captainId){
 function initializesocket(server){
     io = socketIO(server,{
         cors:{
-            origin: [
-            "http://localhost:5173",
-            "https://cj95bg1g-5173.inc1.devtunnels.ms"
-        ],
-            methods:['GET' , "POST"]
-
+            origin:process.env.CLIENT_URL,
+            methods:['GET' , "POST"],
+              credentials:true
         }
     });
 

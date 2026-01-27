@@ -33,7 +33,11 @@ module.exports.registerCaptain = async function(req,res,next){
        })
 
        const token = await captain.generateAuthtoken()
-       res.status(201).json({token, captain})
+       res.cookie('token' , token , {
+            sameSite:'None',
+            httpOnly:true,
+            secure:true
+       }).status(201).json({captain})
 }
 
 module.exports.captainLogin = async(req,res,next)=>{
@@ -58,7 +62,7 @@ module.exports.captainLogin = async(req,res,next)=>{
 
     const token = await captain.generateAuthtoken()
     res.cookie('captaintoken', token ,{
-        sameSite:"none",
+        sameSite:"None",
         secure:true,
         httpOnly:true
 

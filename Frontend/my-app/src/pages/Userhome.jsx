@@ -109,7 +109,7 @@ const Userhome = () => {
   const fetchFares = async (type, setter) => {
     if (pickuparr.length === 0 || destinationarr.length === 0) return;
     try {
-      const res = await axios.post("http://localhost:5000/ride/getfare",
+      const res = await axios.post(`${import.meta.env.VITE_BASE_URL}/ride/getfare`,
         { pickup: pickuparr, destination: destinationarr, vehicleType: type },
         { withCredentials: true }
       );
@@ -123,7 +123,7 @@ const Userhome = () => {
 
   const selectvehicle = async (vehicleType) => {
     try {
-      await axios.post("http://localhost:5000/ride/createride",
+      await axios.post(`${import.meta.env.VITE_BASE_URL}/ride/create-ride`,
         { pickup: pickuparr, destination: destinationarr, vehicleType },
         { withCredentials: true }
       );

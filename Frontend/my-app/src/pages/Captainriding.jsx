@@ -46,8 +46,8 @@ const CaptainRiding = () => {
       const [destLng, destLat] = currentRide.destination;
       try {
         const [pickupRes, destRes] = await Promise.all([
-          axios.post("http://localhost:5000/maps/getfulladdress", { lat: pickupLat, lng: pickupLng }, { withCredentials: true }),
-          axios.post("http://localhost:5000/maps/getfulladdress", { lat: destLat, lng: destLng }, { withCredentials: true }),
+          axios.post(`${import.meta.env.VITE_BASE_URL}/maps/getfulladdress`, { lat: pickupLat, lng: pickupLng }, { withCredentials: true }),
+          axios.post(`${import.meta.env.VITE_BASE_URL}/maps/getfulladdress`, { lat: destLat, lng: destLng }, { withCredentials: true }),
         ]);
         setPickupAddr(pickupRes.data.address);
         setDropAddr(destRes.data.address);

@@ -32,7 +32,7 @@ const Confirmridepopup = (props) => {
       setLoading(true);
 
       const res = await axios.post(
-        "http://localhost:5000/ride/startride",
+       `${import.meta.env.VITE_BASE_URL}/ride/startride`,
         {
           rideId: ridewithuser._id,
           OTP: otp,

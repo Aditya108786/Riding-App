@@ -20,7 +20,7 @@ export const Ridepopup = ({
       setLoading(true);
 
     const res =   await axios.post(
-        "http://localhost:5000/ride/confirmride",
+       `${import.meta.env.VITE_BASE_URL}/maps/getfulladdress`,
         { rideId: ridedata.ridewithuser._id },
         { withCredentials: true }
       );

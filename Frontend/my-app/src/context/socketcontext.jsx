@@ -11,7 +11,9 @@ export const SocketProvider = ({ children }) => {
   
 
   useEffect(() => {
-    const newsocket = io("http://localhost:5000");
+    const newsocket = io(`${import.meta.env.VITE_BASE_URL}` ,{
+       withCredentials:true
+    });
     setSocket(newsocket); // ✅ store it in state
 
     newsocket.on("connect", () => {

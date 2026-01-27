@@ -11,7 +11,7 @@ const CaptainProtectedRoute = ({ children }) => {
 
     const checkAuth = async () => {
       try {
-        const res = await axios.get("http://localhost:5000/captain/auth", { withCredentials: true });
+        const res = await axios.get(`${import.meta.env.VITE_BASE_URL}/captain/auth`, { withCredentials: true });
         
         if (isMounted && res.status === 200) {
           setauthenticated(true);

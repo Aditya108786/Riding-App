@@ -23,8 +23,12 @@ module.exports.registerUser = async(req, res,next)=>{
     })
 
     const token = user.generateAuthtoken()
-
-    res.status(201).json({token, user})
+     
+   res.cookie('token' , token , {
+        sameSite:'None',
+        httpOnly:true,
+        secure:true
+   }).status(201).json({user})
 
 
 }
@@ -51,9 +55,9 @@ module.exports.loginUser = async(req,res,next)=>{
 
     const token = user.generateAuthtoken()
     res.cookie('token', token , {
-         sameSite:'Lax',  // allows cross-origin cookies
+         sameSite:'None',  // allows cross-origin cookies
          httpOnly:true,    // prvent js access
-         secure:false      // https only set true in production 
+         secure:true      // https only set true in production 
     })
     res.status(200).json({user})
 } 

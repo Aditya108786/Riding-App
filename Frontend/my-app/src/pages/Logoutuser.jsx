@@ -6,10 +6,10 @@ export const Logoutuser =  ()=>{
   const navigate = useNavigate()
     useEffect(()=>{
          const userlogout = async()=>{
-              const res =   await axios.post("http://localhost:5000/user/logout" ,{}, {withCredentials:true})
+              const res =   await axios.post(`${import.meta.env.VITE_BASE_URL}/user/logout` ,{}, {withCredentials:true})
     
     if(res.status === 200){
-        localStorage.removeItem('token')
+        //localStorage.removeItem('token')
         navigate('/Userlogin')
     }else{
          

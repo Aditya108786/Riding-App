@@ -20,7 +20,7 @@ const Userlogin = () => {
     seterror(null);
     try {
       const response = await axios.post(
-        "http://localhost:5000/user/login",
+      `${import.meta.env.VITE_BASE_URL}/user/login`,
         { email, password },
         { withCredentials: true }
       );

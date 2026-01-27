@@ -51,7 +51,7 @@ export const Lookingfordriver = (props) => {
         try {
           if (lat != null && lng != null) {
             const response = await axios.post(
-              "http://localhost:5000/maps/getfulladdress",
+             `${import.meta.env.VITE_BASE_URL}/maps/getfulladdress`,
               { lat, lng },
               { withCredentials: true }
             );
@@ -107,7 +107,7 @@ export const Lookingfordriver = (props) => {
         setlivelocation({ lat, lng });
         try {
           const response = await axios.post(
-            "http://localhost:5000/maps/getfulladdress",
+           `${import.meta.env.VITE_BASE_URL}/maps/getfulladdress`,
             { lat, lng },
             { withCredentials: true }
           );

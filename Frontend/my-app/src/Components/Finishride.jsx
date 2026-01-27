@@ -18,7 +18,7 @@ const Finishride = (props) => {
    }
 
   const FinishRide = async()=>{
-       const res = await axios.post("http://localhost:5000/ride/endride" ,{
+       const res = await axios.post(`${import.meta.env.VITE_BASE_URL}/ride/endride` ,{
           rideId:currentRide._id   
        },
        {

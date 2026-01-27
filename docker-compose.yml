@@ -10,9 +10,7 @@ services:
     env_file:
       - ./backend/.env
     
-    depends_on:
-      - mongo
-  
+    
 
   frontend:
     build: ./Frontend/my-app
@@ -20,19 +18,11 @@ services:
     ports:
       - "5173:5173"
     
+    env_file:
+      - ./Frontend/my-app/.env
+    
     depends_on:
       - backend
 
   
-  mongo:
-    image: mongo
-
-    ports:
-      - "27017:27017"
-    
-    volumes:
-      - mongo_data:/data/db
-
-
-volumes:
-  mongo_data:
+  

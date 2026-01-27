@@ -123,7 +123,7 @@ const Userhome = () => {
 
   const selectvehicle = async (vehicleType) => {
     try {
-      await axios.post(`${import.meta.env.VITE_BASE_URL}/ride/create-ride`,
+      await axios.post(`${import.meta.env.VITE_BASE_URL}/ride/createride`,
         { pickup: pickuparr, destination: destinationarr, vehicleType },
         { withCredentials: true }
       );

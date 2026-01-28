@@ -36,6 +36,15 @@ async function initializesocket(server){
         url:process.env.REDIS_URL
     })
     const subClient = pubClient.duplicate()
+
+
+    pubClient.on("error", (err) => {
+  console.error("❌ Redis Pub Client Error:", err.message);
+});
+
+subClient.on("error", (err) => {
+  console.error("❌ Redis Sub Client Error:", err.message);
+});
      
      await pubClient.connect()
     await subClient.connect()

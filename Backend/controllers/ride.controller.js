@@ -23,7 +23,7 @@ module.exports.createRide = async(req , res)=>{
            console.log("captains" , captains)
            ride.OTP = null
            const ridewithuser = await ridemodel.findOne({_id:ride._id}).populate('user' , '-password -resetpasswordtoken -resetpasswordexpire')
-           // console.log("hrsd" , ridewithuser)
+            console.log("hrsd" , ridewithuser)
            const io = getIO()
            captains.forEach((captain)=>{
             

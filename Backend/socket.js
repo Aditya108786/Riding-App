@@ -1,22 +1,29 @@
 
+
+
+
 const socketIO = require('socket.io')
+const {createClient} = require("socket.io")
+const {createAdapter} = require("@socket.io/redis-adapter")
 const usermodel = require('./models/user.model');
 const captainModel = require('./models/captain.model');
+ 
+
 
 let io;
-let captainsockets = {}  // captainId -> usersocketid
-let usersockets = {}  // userid -> captainsocketid
+//let captainsockets = {}  // captainId -> usersocketid
+//let usersockets = {}  // userid -> captainsocketid
 
 
-function getuserSocketId(userId){
+/*function getuserSocketId(userId){
     return usersockets[userId]
 }
 
 function getcaptainsocket(captainId){
      return captainsockets[captainId]
-}
+}*/
 
-function initializesocket(server){
+async function initializesocket(server){
     io = socketIO(server,{
         cors:{
             origin:process.env.CLIENT_URL,
@@ -24,6 +31,17 @@ function initializesocket(server){
               credentials:true
         }
     });
+
+    const pubClient = createClient({
+        url:process.env.REDIS_URL
+    })
+    const subClient = pubClient.duplicate()
+     
+     await pubClient.connect()
+    await subClient.connect()
+
+    io.adapter(createAdapter(pubClient,subClient))
+     
 
     io.on('connection' , (socket)=>{
         console.log(`client connected : ${socket.id}`)
@@ -42,7 +60,7 @@ function initializesocket(server){
             socketId: socket.id
         })
 
-        usersockets[userId] = socket.id
+        
        
 
     } else if (userType === 'captain') {
@@ -52,7 +70,7 @@ function initializesocket(server){
             socketId: socket.id
         })
 
-        captainsockets[userId] = socket.id
+       
        
     } else {
         console.log("❌ INVALID userType:", userType)
@@ -76,11 +94,11 @@ socket.on("send:message" ,({roomId, sender, message}) =>{
         // Listen for captain location updates and forward them to the user of this ride
         socket.on('captain-location', async(data) => {
             try {
-                const { userId,captainId, rideId, lat, lng } = data || {};
+                const { userSocketId,captainId, rideId, lat, lng } = data || {};
                
                   console.log("kaun",captainId)
                   console.log("Live location" , lat , lng)
-                const userSocketId = usersockets[userId];
+                
                   
         io.to(userSocketId).emit("captain-live-location" , {
               lat,
@@ -106,29 +124,20 @@ socket.on("send:message" ,({roomId, sender, message}) =>{
 
         socket.on('disconnect' , ()=>{
             console.log(`client disconnected ${socket.id}`)
-            for (const userId in usersockets) {
-    if (usersockets[userId] === socket.id) {
-      delete usersockets[userId];
-    }
-  }
-
-  for (const captainId in captainsockets) {
-    if (captainsockets[captainId] === socket.id) {
-      delete captainsockets[captainId];
-    }
-  }
+            
+  
         })
     })
 }
 
 
-function sendmessagetosocketid(socketID, messageObject){
+/*function sendmessagetosocketid(socketID, messageObject){
     if(io){
         io.to(socketID).emit(messageObject.event, messageObject.data)
     }else{
         console.log('socket.io is not initialized')
     }
-}
+}*/
 
 function getIO(){
     if(!io){
@@ -137,5 +146,5 @@ function getIO(){
     return io
 }
 
-module.exports = { initializesocket, sendmessagetosocketid , getIO , getuserSocketId , captainsockets}
+module.exports = { initializesocket,  getIO}
 

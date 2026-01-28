@@ -100,7 +100,7 @@ const CaptainHome = () => {
     }
 
     socket.emit("captain-location" , {
-         userId:ridedata.ridewithuser.user._id,
+         userSocketId:ridedata.ridewithuser.user.socketId,
          captainId:captain._id,
          lat:livelocation.lat,
          lng:livelocation.lng

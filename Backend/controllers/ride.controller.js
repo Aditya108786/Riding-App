@@ -26,9 +26,9 @@ module.exports.createRide = async(req , res)=>{
            // console.log("hrsd" , ridewithuser)
            const io = getIO()
            captains.forEach((captain)=>{
-            const socketId = captainsockets[captain._id.toString()];
-            console.log("hello bro",socketId);
-                  io.to(socketId).emit("newride" , {
+            
+            console.log("hello bro",captain.socketId);
+                  io.to(captain.socketId).emit("newride" , {
                      
                      message:'A new ride request',
                      ridewithuser
@@ -76,20 +76,20 @@ module.exports.ConfirmRide = async(req,res)=>{
 
         
         
-        const userId = ride.user._id.toString()
-       
-         const socketId = getuserSocketId(userId)
+        //const userId = ride.user._id.toString()
+       //const socketId = getuserSocketId(userId)
+
          
          const io = getIO()
          
         
          const captainsocketId = captain.socketId
         if(captainsocketId){
-             io.sockets.sockets.get(captainsocketId).join(roomId)
+             io.in(captainsocketId).socketsJoin(roomId)    //captain joins room
         }
 
-        io.to(ride.user.socketId).emit("start:chat", 
-         roomId
+        io.to(ride.user.socketId).emit("start:chat",     //notify user
+              roomId
         )
 
 
@@ -110,9 +110,9 @@ module.exports.StartRide = async(req,res)=>{
        }
         
        const ride = await rideservice.Startride(rideId, OTP , captain)
-
+          const io = getIO()
        try {
-         sendmessagetosocketid(ride.user.socketId, {
+        io.to(ride.user.socketId, {
             event:"ride-started",
             data:ride
          })
@@ -134,9 +134,9 @@ module.exports.Endride = async(req,res)=>{
         if(!ride){
            throw new Error("Ride not found ")
         }
-
+        const io = getIO()
         try {
-           sendmessagetosocketid(ride.user.socketId ,{
+           io.to(ride.user.socketId ,{
               event:"End-ride",
               data:ride
            })

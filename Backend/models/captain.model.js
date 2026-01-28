@@ -39,15 +39,19 @@ const captainSchema = new mongoose.Schema({
         default:'inactive'
     },
 
-    location:{
-        ltd:{
-            type:Number,
-
-        },
-        lng:{
-            type:Number,
-        }
-    },
+    location: {
+  type: {
+    type: String,
+    enum: ['Point'],
+    required: true,
+    default: 'Point'
+  },
+  coordinates: {
+    type: [Number], // [lng, lat]
+    required: true
+  }
+}
+,
 
     socketId:{
         type:String,
@@ -91,5 +95,8 @@ captainSchema.methods.comparepassword = async function(password){
 captainSchema.statics.hashpassword = async function(password){
     return await bcrypt.hash(password, 10)
 }
+
+captainSchema.index({ location: '2dsphere' });
+
 
 module.exports = mongoose.model("captain" , captainSchema)

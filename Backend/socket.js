@@ -126,12 +126,16 @@ socket.on("send:message" ,({roomId, sender, message}) =>{
               lng
         })
 
-             const captain = await captainModel.findByIdAndUpdate(captainId , {
-                  location:{
-                       ltd:lat,
-                       lng:lng
-                  }
-             })
+             const captain = await captainModel.findByIdAndUpdate(
+  captainId,
+  {
+    location: {
+      type: 'Point',
+      coordinates: [lng, lat] // 🔴 longitude FIRST
+    }
+  },
+  { new: true }
+);
 
 
                 

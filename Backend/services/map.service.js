@@ -62,23 +62,24 @@ module.exports.getsuggestions = async(address)=>{
    
 }
 
-module.exports.getCaptaininTheRadius = async(ltd,lng, radius)=>{
-           console.log("lmnb",ltd,lng)
-    const captains = await captainModel.find({
-        location:{
-            $geoWithin:{
-                $centerSphere:[[ltd,lng], radius/6371]
-            }
-        }
-       
-    })
+module.exports.getCaptaininTheRadius = async (ltd, lng, radius) => {
+  console.log("coords", ltd, lng);
 
-    console.log("backend",captains)
-   
+  const captains = await captainModel.find({
+    location: {
+      $geoWithin: {
+        $centerSphere: [
+          [lng, ltd],          // ✅ correct order
+          radius / 6371        // radius in KM
+        ]
+      }
+    }
+  });
 
-    return captains
-       
-}
+  console.log("backend", captains);
+  return captains;
+};
+
 
 module.exports.coordinatesToAddress = async (lat,lng) => {
 

@@ -85,7 +85,8 @@ module.exports.ConfirmRide = async(req,res)=>{
         
          const captainsocketId = captain.socketId
         if(captainsocketId){
-             io.in(captainsocketId).socketsJoin(roomId)    //captain joins room
+             io.sockets.sockets.get(captainsocketId)?.join(roomId)
+   //captain joins room
         }
 
         io.to(ride.user.socketId).emit("start:chat",     //notify user
@@ -112,11 +113,7 @@ module.exports.StartRide = async(req,res)=>{
        const ride = await rideservice.Startride(rideId, OTP , captain)
           const io = getIO()
        try {
-        io.to(ride.user.socketId, {
-            event:"ride-started",
-            data:ride
-         })
-
+        io.to(ride.user.socketId).emit("ride-started" ,ride)
          return res.status(200).json(ride)
        } catch (error) {
            res.status(500).json({message:error.message})
@@ -136,10 +133,7 @@ module.exports.Endride = async(req,res)=>{
         }
         const io = getIO()
         try {
-           io.to(ride.user.socketId ,{
-              event:"End-ride",
-              data:ride
-           })
+           io.to(ride.user.socketId).emit("End-ride" , ride)
          return  res.status(200).json(ride)
         } catch (error) {
              res.status(500).json({message:error.message})

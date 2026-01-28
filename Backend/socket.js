@@ -33,14 +33,26 @@ async function initializesocket(server){
     });
 
     const pubClient = createClient({
-        url:process.env.REDIS_URL
-    })
-    const subClient = pubClient.duplicate()
+  url: process.env.REDIS_URL,
+  socket: {
+    tls: true,
+    keepAlive: 10000,        // VERY IMPORTANT
+    reconnectStrategy: (retries) => {
+      console.log("🔁 Redis reconnect attempt:", retries);
+      return Math.min(retries * 100, 3000); // retry delay
+    },
+  },
+});
 
-
-    pubClient.on("error", (err) => {
+pubClient.on("error", (err) => {
   console.error("❌ Redis Pub Client Error:", err.message);
 });
+
+pubClient.on("connect", () => {
+  console.log("✅ Redis Pub Client connected");
+});
+
+const subClient = pubClient.duplicate();
 
 subClient.on("error", (err) => {
   console.error("❌ Redis Sub Client Error:", err.message);

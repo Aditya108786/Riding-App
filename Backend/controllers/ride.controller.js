@@ -103,18 +103,18 @@ module.exports.ConfirmRide = async(req, res) => {
     } else {
       console.log("⚠️ Captain has no socketId");
     }
-      console.log(ride.user.socketId)
+     // console.log(ride.user.socketId)
       console.log(ride.ridewithuser.user.socketId)
     // Notify user to start chat
-    io.to(ride.user.socketId).emit("start:chat", roomId);
+    io.to(ride.ridewithuser.user.socketId).emit("start:chat", roomId);
     console.log(`📢 Sent start:chat to user: ${ride.user.socketId}`);
 
     // Notify user that ride is confirmed
-    io.to(ride.user.socketId).emit("ride-confirmed", {
+    io.to(ride.ridewithuser.user.socketId).emit("ride-confirmed", {
       message: "Ride accepted",
       ride
     });
-    console.log(`✅ Sent ride-confirmed to user: ${ride.user.socketId}`);
+    console.log(`✅ Sent ride-confirmed to user: ${ride.ridewithuser.user.socketId}`);
 
     return res.status(200).json({ roomId, ride });
     

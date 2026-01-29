@@ -112,7 +112,7 @@ module.exports.confirmRide = async(rideId , captain)=>{
         if(!ride){
            throw new Error("Ride not found")
         }
-
+        console.log("confirmride",ride)
         return ride
 
        

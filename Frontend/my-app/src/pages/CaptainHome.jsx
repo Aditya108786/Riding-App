@@ -95,12 +95,12 @@ const CaptainHome = () => {
 
   useEffect(()=>{
            
-    if(!socket || !captain?._id || !ridedata || !livelocation){
+    if(!socket || !captain?._id || !livelocation){
                 return;
     }
 
     socket.emit("captain-location" , {
-         userSocketId:ridedata.ridewithuser.user.socketId,
+        
          captainId:captain._id,
          lat:livelocation.lat,
          lng:livelocation.lng
@@ -108,7 +108,7 @@ const CaptainHome = () => {
       
 
 
-  },[livelocation , ridedata , captain?._id , socket])
+  },[livelocation , captain?._id , socket])
 
 
 

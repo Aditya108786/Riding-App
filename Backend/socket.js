@@ -113,36 +113,53 @@ socket.on("send:message" ,({roomId, sender, message}) =>{
 })
 
         // Listen for captain location updates and forward them to the user of this ride
-        socket.on('captain-location', async(data) => {
-            try {
-                const { userSocketId,captainId, rideId, lat, lng } = data || {};
-               
-                  console.log("kaun",captainId)
-                  console.log("Live location" , lat , lng)
-                
-                  
-        io.to(userSocketId).emit("captain-live-location" , {
-              lat,
-              lng
-        })
+        socket.on("captain-location", async (data) => {
+  try {
+    const { captainId, lat, lng } = data || {};
 
-             const captain = await captainModel.findByIdAndUpdate(
-  captainId,
-  {
-    location: {
-      type: 'Point',
-      coordinates: [lng, lat] // 🔴 longitude FIRST
+    if (!captainId || lat == null || lng == null) {
+      console.log("❌ Invalid captain-location payload:", data);
+      return;
     }
-  },
-  { new: true }
-);
 
+    console.log("📍 Captain:", captainId);
+    console.log("📍 Live location:", lat, lng);
 
-                
-            } catch (err) {
-                console.error('Error handling captain-location', err);
-            }
-        });
+    // 1️⃣ Update captain location
+    await captainModel.findByIdAndUpdate(
+      captainId,
+      {
+        location: {
+          type: "Point",
+          coordinates: [lng, lat]
+        }
+      },
+      { new: true }
+    );
+
+    // 2️⃣ Find active ride for this captain
+    const ride = await Ride.findOne({
+      captain: captainId,
+      status: { $in: ["Accepted", "Ongoing"] }
+    });
+
+    if (!ride) return;
+
+    // 3️⃣ Fetch user socketId from DB
+    const user = await usermodel.findById(ride.user).select("socketId");
+    if (!user?.socketId) return;
+
+    // 4️⃣ Emit live location to user
+    io.to(user.socketId).emit("captain-live-location", {
+      lat,
+      lng
+    });
+
+  } catch (err) {
+    console.error("❌ Error handling captain-location:", err);
+  }
+});
+
 
 
        

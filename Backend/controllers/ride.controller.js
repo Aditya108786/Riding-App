@@ -24,16 +24,18 @@ module.exports.createRide = async(req , res)=>{
            ride.OTP = null
            const ridewithuser = await ridemodel.findOne({_id:ride._id}).populate('user' , '-password -resetpasswordtoken -resetpasswordexpire')
             console.log("hrsd" , ridewithuser)
-           const io = getIO()
-           captains.forEach((captain)=>{
-            
-            console.log("hello bro",captain.socketId);
-                  io.to(captain.socketId).emit("newride" , {
-                     
-                     message:'A new ride request',
-                     ridewithuser
-                  })
-           })
+          const io = getIO();
+captains.forEach((captain) => {
+    if (captain.socketId) {  // ✅ Check if socketId exists
+        console.log("Notifying captain:", captain.socketId);
+        io.to(captain.socketId).emit("newride", {
+            message: 'A new ride request',
+            ridewithuser
+        });
+    } else {
+        console.log("⚠️ Captain has no active socket:", captain._id);
+    }
+});
            
      } catch (error) {
       console.error("error in creating ride" , error)

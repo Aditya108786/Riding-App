@@ -165,11 +165,21 @@ socket.on("send:message" ,({roomId, sender, message}) =>{
 
        
 
-        socket.on('disconnect' , ()=>{
-            console.log(`client disconnected ${socket.id}`)
-            
-  
-        })
+       socket.on('disconnect', async () => {
+    console.log(`Client disconnected: ${socket.id}`);
+    
+    // Clean up user socketId
+    await usermodel.findOneAndUpdate(
+        { socketId: socket.id },
+        { $unset: { socketId: "" } }
+    );
+    
+    // Clean up captain socketId
+    await captainModel.findOneAndUpdate(
+        { socketId: socket.id },
+        { $unset: { socketId: "" } }
+    );
+});
     })
 }
 

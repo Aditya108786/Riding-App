@@ -76,9 +76,10 @@ module.exports.ConfirmRide = async(req, res) => {
     if (!ride) {
       return res.status(404).json({ message: "Ride not found" });
     }
+    console.log("hello ji" , ride)
 
     // Check if user has a socket connection
-    if (!ride.user || !ride.user.socketId) {
+    if (!ride.user || !ride.ridewithuser.user.socketId) {
       console.log("⚠️ User has no active socket connection");
       return res.status(200).json({ 
         roomId, 

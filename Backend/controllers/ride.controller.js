@@ -58,52 +58,71 @@ module.exports.getfare = async(req ,res)=>{
 }
 
 
-module.exports.ConfirmRide = async(req,res)=>{
-        const {rideId } = req.body
-        const captain = req.captain
-        
-        const roomId = `chat_${rideId}`
-       
+module.exports.ConfirmRide = async(req, res) => {
+  try {
+    const { rideId } = req.body;
+    const captain = req.captain;
+    
+    // Validate inputs
+    if (!rideId || !captain) {
+      return res.status(400).json({ message: "All fields required" });
+    }
 
-        if(!rideId || !captain){
-             throw new Error("All fields required")
-        }
+    const roomId = `chat_${rideId}`;
 
-        const ride = await rideservice.confirmRide(rideId,captain)
+    // Confirm the ride
+    const ride = await rideservice.confirmRide(rideId, captain);
 
+    if (!ride) {
+      return res.status(404).json({ message: "Ride not found" });
+    }
 
-        if(!ride){
-             throw new Error("Ride not found in controller")
-        }
+    // Check if user has a socket connection
+    if (!ride.user || !ride.user.socketId) {
+      console.log("⚠️ User has no active socket connection");
+      return res.status(200).json({ 
+        roomId, 
+        ride,
+        warning: "User is offline, notifications may not be delivered"
+      });
+    }
 
-        
-        
-        //const userId = ride.user._id.toString()
-       //const socketId = getuserSocketId(userId)
+    const io = getIO();
+    
+    // Captain joins the chat room
+    const captainSocketId = captain.socketId;
+    if (captainSocketId) {
+      const captainSocket = io.sockets.sockets.get(captainSocketId);
+      if (captainSocket) {
+        captainSocket.join(roomId);
+        console.log(`✅ Captain ${captain._id} joined room: ${roomId}`);
+      } else {
+        console.log(`⚠️ Captain socket ${captainSocketId} not found`);
+      }
+    } else {
+      console.log("⚠️ Captain has no socketId");
+    }
 
-         
-         const io = getIO()
-         
-        
-         const captainsocketId = captain.socketId
-        if(captainsocketId){
-             io.sockets.sockets.get(captainsocketId)?.join(roomId)
-   //captain joins room
-        }
+    // Notify user to start chat
+    io.to(ride.user.socketId).emit("start:chat", roomId);
+    console.log(`📢 Sent start:chat to user: ${ride.user.socketId}`);
 
-        io.to(ride.user.socketId).emit("start:chat",     //notify user
-              roomId
-        )
+    // Notify user that ride is confirmed
+    io.to(ride.user.socketId).emit("ride-confirmed", {
+      message: "Ride accepted",
+      ride
+    });
+    console.log(`✅ Sent ride-confirmed to user: ${ride.user.socketId}`);
 
-
-        io.to(ride.user.socketId ).emit("ride-confirmed" ,{
-           message:"Ride accepted",
-           ride
-        })
-
-        return res.status(200).json({roomId, ride})
-        
-}
+    return res.status(200).json({ roomId, ride });
+    
+  } catch (error) {
+    console.error("❌ Error in ConfirmRide:", error);
+    return res.status(500).json({ 
+      message: error.message || "Failed to confirm ride" 
+    });
+  }
+};
 
 module.exports.StartRide = async(req,res)=>{
       const {rideId, OTP} = req.body

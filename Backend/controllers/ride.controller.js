@@ -102,7 +102,8 @@ module.exports.ConfirmRide = async(req, res) => {
     } else {
       console.log("⚠️ Captain has no socketId");
     }
-
+      console.log(ride.user.socketId)
+      console.log(ride.ridewithuser.user.socketId)
     // Notify user to start chat
     io.to(ride.user.socketId).emit("start:chat", roomId);
     console.log(`📢 Sent start:chat to user: ${ride.user.socketId}`);

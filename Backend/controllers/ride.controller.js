@@ -19,7 +19,7 @@ module.exports.createRide = async(req , res)=>{
            res.status(201).json(ride)
            
 
-           const captains = await mapservice.getCaptaininTheRadius(pickup[1] , pickup[0] , 10)
+           const captains = await mapservice.getCaptaininTheRadius(pickup[1] , pickup[0] , 30)
            console.log("captains" , captains)
            ride.OTP = null
            const ridewithuser = await ridemodel.findOne({_id:ride._id}).populate('user' , '-password -resetpasswordtoken -resetpasswordexpire')

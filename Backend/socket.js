@@ -7,6 +7,7 @@ const {createClient} = require("redis")
 const {createAdapter} = require("@socket.io/redis-adapter")
 const usermodel = require('./models/user.model');
 const captainModel = require('./models/captain.model');
+const Ride = require('./models/ride.model')
  
 
 

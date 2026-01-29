@@ -39,18 +39,23 @@ const captainSchema = new mongoose.Schema({
         default:'inactive'
     },
 
-    location: {
+   location: {
   type: {
     type: String,
     enum: ['Point'],
-    
     default: 'Point'
   },
   coordinates: {
-    type: [Number], // [lng, lat]
-    
+    type: [Number],
+    default: [0, 0],
+    required: true,
+    validate: {
+      validator: (val) => Array.isArray(val) && val.length === 2,
+      message: 'Coordinates must be [lng, lat]'
+    }
   }
 }
+
 ,
 
     socketId:{

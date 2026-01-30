@@ -93,6 +93,17 @@ const CaptainHome = () => {
   },[captain,socket])
  console.log(livelocation)
 
+ useEffect(()=>{
+       if(!socket){
+         return;
+       }
+
+       socket.emit("captain-location-update" , {
+             lat:livelocation.lat,
+             lng:livelocation.lng
+       })
+ },[socket,livelocation])
+
   useEffect(()=>{
            
     if(!socket || !captain?._id || !livelocation){

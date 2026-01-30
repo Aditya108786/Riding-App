@@ -1,6 +1,7 @@
 const rideservice  = require('../services/ride.services')
 const mapservice = require('../services/map.service')
 const ridemodel = require('../models/ride.model')
+const redis = require("redis")
 const {getIO , sendmessagetosocketid, getuserSocketId  , captainsockets} = require('../socket')
 
 
@@ -19,22 +20,36 @@ module.exports.createRide = async(req , res)=>{
            res.status(201).json(ride)
            
 
-           const captains = await mapservice.getCaptaininTheRadius(pickup[1] , pickup[0] , 30)
+           //const captains = await mapservice.getCaptaininTheRadius(pickup[1] , pickup[0] , 30)
+              const captains = await redis.geoRadius(
+                        "captains:locations",
+                        pickup[0],
+                        pickup[1],
+                        50,
+                        "km",
+                        {
+                          WITHDIST:true
+                        }
+              )
+              if(!captains){
+                  return res.status(200).json({
+                    message:"No nearby captains",
+                    ride
+                  })
+              }
            console.log("captains" , captains)
            ride.OTP = null
            const ridewithuser = await ridemodel.findOne({_id:ride._id}).populate('user' , '-password -resetpasswordtoken -resetpasswordexpire')
             console.log("hrsd" , ridewithuser)
           const io = getIO();
-captains.forEach((captain) => {
-    if (captain.socketId) {  // ✅ Check if socketId exists
-        console.log("Notifying captain:", captain.socketId);
-        io.to(captain.socketId).emit("newride", {
-            message: 'A new ride request',
+captains.forEach(async(captain) => {
+      const captainId = captain.member
+      const captainSocketId = await redis.get(`captain:${captainId}`)
+      if(captainSocketId){
+        io.to(captainSocketId).emit("newride" , {
             ridewithuser
-        });
-    } else {
-        console.log("⚠️ Captain has no active socket:", captain._id);
-    }
+        })
+      }
 });
            
      } catch (error) {

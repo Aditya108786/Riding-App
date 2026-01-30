@@ -67,30 +67,36 @@ subClient.on("error", (err) => {
 
     io.on('connection' , (socket)=>{
         console.log(`client connected : ${socket.id}`)
+          socket.on('join', async (data) => {
+          const { userId, userType } = data
 
-
-       socket.on('join', async (data) => {
-   
-    
-
-    const { userId, userType } = data
+          if(!user || !userType){
+             return;
+          }
 
     if (userType === 'user') {
         console.log("ENTERED USER BLOCK")
 
-        await usermodel.findByIdAndUpdate(userId, {
+        /*await usermodel.findByIdAndUpdate(userId, {
             socketId: socket.id
-        })
+        })*/
 
+        await pubClient.set(`user:${userId}`, socket.id , {EX:3600})
+        socket.userId = userId
+        socket.userType = "user"
         
        
 
     } else if (userType === 'captain') {
         console.log("ENTERED CAPTAIN BLOCK")
 
-        await captainModel.findByIdAndUpdate(userId, {
+       /* await captainModel.findByIdAndUpdate(userId, {
             socketId: socket.id
-        })
+        })*/
+
+        await pubClient.set(`captain:${userId}`, socket.id , {EX:3600})
+        socket.captainId = userId
+        socket.userType = "captain"
 
        
        
@@ -112,6 +118,17 @@ socket.on("send:message" ,({roomId, sender, message}) =>{
         time:new Date().toLocaleTimeString()
      })
 })
+
+      socket.on("captain-location-update", async({lat,lng})=>{
+          const captainId = socket.captainId
+
+            await redis.geoAdd("captains:locations",{
+                 longitude:lng,
+                 latitude:lat,
+                 member:captainId.toString()
+            })
+      })
+     
 
         // Listen for captain location updates and forward them to the user of this ride
         socket.on("captain-location", async (data) => {
@@ -169,16 +186,13 @@ socket.on("send:message" ,({roomId, sender, message}) =>{
     console.log(`Client disconnected: ${socket.id}`);
     
     // Clean up user socketId
-    await usermodel.findOneAndUpdate(
-        { socketId: socket.id },
-        { $unset: { socketId: "" } }
-    );
-    
-    // Clean up captain socketId
-    await captainModel.findOneAndUpdate(
-        { socketId: socket.id },
-        { $unset: { socketId: "" } }
-    );
+    if(socket.userType == "user" && socket.userId){
+      await pubClient.del(`user:${socket.userId}`)
+    }
+
+    if(socket.userType == "captain" && socket.captainId){
+         await pubClient.del(`captain:${socket.captainId}`)
+    }
 });
     })
 }

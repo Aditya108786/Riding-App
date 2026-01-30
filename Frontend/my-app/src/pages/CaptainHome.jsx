@@ -104,7 +104,7 @@ const CaptainHome = () => {
        })
  },[socket,livelocation])
 
-  useEffect(()=>{
+  /*useEffect(()=>{
            
     if(!socket || !captain?._id || !livelocation){
                 return;
@@ -119,7 +119,7 @@ const CaptainHome = () => {
       
 
 
-  },[livelocation , captain?._id , socket])
+  },[livelocation , captain?._id , socket]*/
 
 
 

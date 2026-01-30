@@ -21,7 +21,7 @@ module.exports.createRide = async(req , res)=>{
            
 
            //const captains = await mapservice.getCaptaininTheRadius(pickup[1] , pickup[0] , 30)
-              const captains = await redis.geoRadius(
+              const captains = await redis.geoSearch(
                         "captains:locations",
                         pickup[0],
                         pickup[1],

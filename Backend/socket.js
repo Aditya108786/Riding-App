@@ -122,7 +122,7 @@ socket.on("send:message" ,({roomId, sender, message}) =>{
       socket.on("captain-location-update", async({lat,lng})=>{
           const captainId = socket.captainId
 
-            await redis.geoAdd("captains:locations",{
+            await pubClient.geoAdd("captains:locations",{
                  longitude:lng,
                  latitude:lat,
                  member:captainId.toString()

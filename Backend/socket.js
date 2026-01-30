@@ -70,7 +70,7 @@ subClient.on("error", (err) => {
           socket.on('join', async (data) => {
           const { userId, userType } = data
 
-          if(!user || !userType){
+          if(!userId || !userType){
              return;
           }
 

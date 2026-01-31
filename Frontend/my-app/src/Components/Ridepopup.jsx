@@ -27,9 +27,11 @@ export const Ridepopup = ({
 
       
           setroomid(res.data.roomId)
+          const ride = res.data.ride
           socket.emit("start:chat-room",  res.data.roomId)
       socket?.emit("ride-accepted", {
         rideId: ridedata.ride._id,
+        ride
       });
 
       setriderequestconfirm(true);

@@ -73,73 +73,60 @@ module.exports.getfare = async(req ,res)=>{
 }
 
 
-module.exports.ConfirmRide = async(req, res) => {
+module.exports.ConfirmRide = async (req, res) => {
   try {
     const { rideId } = req.body;
     const captain = req.captain;
-    
-    // Validate inputs
+
     if (!rideId || !captain) {
       return res.status(400).json({ message: "All fields required" });
     }
 
+    const redis = getRedis();
+    const io = getIO();
     const roomId = `chat_${rideId}`;
-  
 
-    // Confirm the ride
+    // 1️⃣ Confirm ride
     const ride = await rideservice.confirmRide(rideId, captain);
-
     if (!ride) {
       return res.status(404).json({ message: "Ride not found" });
     }
-    console.log("hello ji" , ride)
 
-    // Check if user has a socket connection
-    if (!ride.user) {
-      console.log("⚠️ User has no active socket connection");
-      return res.status(200).json({ 
-        roomId, 
+    // 2️⃣ Get socket IDs from Redis
+    const captainSocketId = await redis.get(`captain:${captain._id}`);
+    const userSocketId = await redis.get(`user:${ride.user}`);
+
+    if (!userSocketId) {
+      console.log("⚠️ User offline");
+      return res.status(200).json({
+        roomId,
         ride,
-        warning: "User is offline, notifications may not be delivered"
+        warning: "User offline"
       });
     }
 
-    const io = getIO();
-    const redis = getRedis()
-    
-    // Captain joins the chat room
-    const captainSocketId = await redis.get(`captainId:${captain._id}`);
-    const userSocketId = await redis.get(`userId:${ride.user._id}`)
+    // 3️⃣ Captain joins chat room
     if (captainSocketId) {
       const captainSocket = io.sockets.sockets.get(captainSocketId);
       if (captainSocket) {
         captainSocket.join(roomId);
-        console.log(`✅ Captain ${captain._id} joined room: ${roomId}`);
-      } else {
-        console.log(`⚠️ Captain socket ${captainSocketId} not found`);
+        console.log(`✅ Captain joined room ${roomId}`);
       }
-    } else {
-      console.log("⚠️ Captain has no socketId");
     }
-     // console.log(ride.user.socketId)
-      //console.log(ride.ridewithuser.user.socketId)
-    // Notify user to start chat
-    io.to(userSocketId).emit("start:chat", roomId);
-    console.log(`📢 Sent start:chat to user: ${userSocketId}`);
 
-    // Notify user that ride is confirmed
+    // 4️⃣ Notify user
+    io.to(userSocketId).emit("start:chat", roomId);
     io.to(userSocketId).emit("ride-confirmed", {
       message: "Ride accepted",
       ride
     });
-    console.log(`✅ Sent ride-confirmed to user: ${userSocketId}`);
 
     return res.status(200).json({ roomId, ride });
-    
+
   } catch (error) {
-    console.error("❌ Error in ConfirmRide:", error);
-    return res.status(500).json({ 
-      message: error.message || "Failed to confirm ride" 
+    console.error("❌ ConfirmRide error:", error);
+    return res.status(500).json({
+      message: error.message || "Failed to confirm ride"
     });
   }
 };

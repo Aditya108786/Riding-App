@@ -76,6 +76,7 @@ module.exports.getfare = async(req ,res)=>{
 module.exports.ConfirmRide = async (req, res) => {
   try {
     const { rideId } = req.body;
+    console.log("ciiiii",req.captain)
     const captain = req.captain;
 
     if (!rideId || !captain) {

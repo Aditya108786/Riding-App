@@ -1,7 +1,7 @@
 const rideservice  = require('../services/ride.services')
 const mapservice = require('../services/map.service')
 const ridemodel = require('../models/ride.model')
-const redis = require("redis")
+const {getRedis} = require("../config/Redis")
 const pubClient = require('../socket')
 const {getIO , sendmessagetosocketid, getuserSocketId  , captainsockets} = require('../socket')
 
@@ -12,6 +12,7 @@ module.exports.createRide = async(req , res)=>{
        
 
      try {
+         const redis = getRedis()
         const ride = await rideservice.createride({pickup , destination , user:req.user._id,vehicleType })
         console.log("rde" , pickup)
         
@@ -22,15 +23,10 @@ module.exports.createRide = async(req , res)=>{
            
 
            //const captains = await mapservice.getCaptaininTheRadius(pickup[1] , pickup[0] , 30)
-              const captains = await pubClient.geoSearch(
+              const captains = await redis.geoSearch(
                         "captains:locations",
-                        pickup[0],
-                        pickup[1],
-                        50,
-                        "km",
-                        {
-                          WITHDIST:true
-                        }
+                       {longitude:pickup[0],latitude:pickup[1]},
+                        {radius:50, unit:"km"}
               )
               if(!captains){
                   return res.status(200).json({

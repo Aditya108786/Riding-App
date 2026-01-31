@@ -3,7 +3,7 @@
 
 
 const socketIO = require('socket.io')
-const {createClient} = require("redis")
+const {connectRedis , getRedis} = require("./config/Redis")
 const {createAdapter} = require("@socket.io/redis-adapter")
 const usermodel = require('./models/user.model');
 const captainModel = require('./models/captain.model');
@@ -12,7 +12,7 @@ const Ride = require('./models/ride.model')
 
 
 let io;
-let pubClient;
+
 //let captainsockets = {}  // captainId -> usersocketid
 //let usersockets = {}  // userid -> captainsocketid
 
@@ -34,36 +34,11 @@ async function initializesocket(server){
         }
     });
 
-     pubClient = createClient({
-  url: process.env.REDIS_URL,
-  socket: {
-    tls: true,
-    keepAlive: 10000,        // VERY IMPORTANT
-    reconnectStrategy: (retries) => {
-      console.log("🔁 Redis reconnect attempt:", retries);
-      return Math.min(retries * 100, 3000); // retry delay
-    },
-  },
-});
+     const redis = await connectRedis()
+     const subClient = redis.duplicate()
+     await subClient.connect()
 
-pubClient.on("error", (err) => {
-  console.error("❌ Redis Pub Client Error:", err.message);
-});
-
-pubClient.on("connect", () => {
-  console.log("✅ Redis Pub Client connected");
-});
-
-const subClient = pubClient.duplicate();
-
-subClient.on("error", (err) => {
-  console.error("❌ Redis Sub Client Error:", err.message);
-});
-     
-     await pubClient.connect()
-    await subClient.connect()
-
-    io.adapter(createAdapter(pubClient,subClient))
+    io.adapter(createAdapter(redis,subClient))
      
 
     io.on('connection' , (socket)=>{
@@ -82,7 +57,7 @@ subClient.on("error", (err) => {
             socketId: socket.id
         })*/
 
-        await pubClient.set(`user:${userId}`, socket.id , {EX:3600})
+        await redis.set(`user:${userId}`, socket.id , {EX:3600})
         socket.userId = userId
         socket.userType = "user"
         
@@ -95,7 +70,7 @@ subClient.on("error", (err) => {
             socketId: socket.id
         })*/
 
-        await pubClient.set(`captain:${userId}`, socket.id , {EX:3600})
+        await redis.set(`captain:${userId}`, socket.id , {EX:3600})
         socket.captainId = userId
         socket.userType = "captain"
 
@@ -127,7 +102,7 @@ socket.on("send:message" ,({roomId, sender, message}) =>{
         }
           const captainId = socket.captainId
 
-            await pubClient.geoAdd("captains:locations",{
+            await redis.geoAdd("captains:locations",{
                  longitude:lng,
                  latitude:lat,
                  member:captainId.toString()
@@ -192,11 +167,11 @@ socket.on("send:message" ,({roomId, sender, message}) =>{
     
     // Clean up user socketId
     if(socket.userType == "user" && socket.userId){
-      await pubClient.del(`user:${socket.userId}`)
+      await redis.del(`user:${socket.userId}`)
     }
 
     if(socket.userType == "captain" && socket.captainId){
-         await pubClient.del(`captain:${socket.captainId}`)
+         await redis.del(`captain:${socket.captainId}`)
     }
 });
     })
@@ -218,5 +193,5 @@ function getIO(){
     return io
 }
 
-module.exports = { initializesocket,pubClient,  getIO}
+module.exports = { initializesocket,  getIO}
 

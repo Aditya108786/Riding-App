@@ -2,6 +2,7 @@ const rideservice  = require('../services/ride.services')
 const mapservice = require('../services/map.service')
 const ridemodel = require('../models/ride.model')
 const redis = require("redis")
+const pubClient = require('../socket')
 const {getIO , sendmessagetosocketid, getuserSocketId  , captainsockets} = require('../socket')
 
 
@@ -44,7 +45,7 @@ module.exports.createRide = async(req , res)=>{
           const io = getIO();
 captains.forEach(async(captain) => {
       const captainId = captain.member
-      const captainSocketId = await redis.get(`captain:${captainId}`)
+      const captainSocketId = await pubClient.get(`captain:${captainId}`)
       if(captainSocketId){
         io.to(captainSocketId).emit("newride" , {
             ridewithuser

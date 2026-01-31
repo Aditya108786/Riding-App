@@ -12,6 +12,7 @@ const Ride = require('./models/ride.model')
 
 
 let io;
+let pubClient;
 //let captainsockets = {}  // captainId -> usersocketid
 //let usersockets = {}  // userid -> captainsocketid
 
@@ -33,7 +34,7 @@ async function initializesocket(server){
         }
     });
 
-    const pubClient = createClient({
+     pubClient = createClient({
   url: process.env.REDIS_URL,
   socket: {
     tls: true,
@@ -217,5 +218,5 @@ function getIO(){
     return io
 }
 
-module.exports = { initializesocket,  getIO}
+module.exports = { initializesocket,pubClient,  getIO}
 

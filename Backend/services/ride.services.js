@@ -109,9 +109,9 @@ module.exports.confirmRide = async(rideId , captain)=>{
           new:true
         }).populate("user").populate("captain").select("+OTP")
 
-        if(!ride){
+        /*if(!ride){
            throw new Error("Ride not found")
-        }
+        }*/
         console.log("confirmride",ride)
         return ride
 

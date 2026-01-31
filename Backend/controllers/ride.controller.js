@@ -84,6 +84,7 @@ module.exports.ConfirmRide = async(req, res) => {
     }
 
     const roomId = `chat_${rideId}`;
+  
 
     // Confirm the ride
     const ride = await rideservice.confirmRide(rideId, captain);
@@ -94,7 +95,7 @@ module.exports.ConfirmRide = async(req, res) => {
     console.log("hello ji" , ride)
 
     // Check if user has a socket connection
-    if (!ride.user || !ride.ridewithuser.user.socketId) {
+    if (!ride.user) {
       console.log("⚠️ User has no active socket connection");
       return res.status(200).json({ 
         roomId, 
@@ -104,9 +105,11 @@ module.exports.ConfirmRide = async(req, res) => {
     }
 
     const io = getIO();
+    const redis = getRedis()
     
     // Captain joins the chat room
-    const captainSocketId = captain.socketId;
+    const captainSocketId = await redis.get(`captainId:${captain._id}`);
+    const userSocketId = await redis.get(`userId:${ride.user._id}`)
     if (captainSocketId) {
       const captainSocket = io.sockets.sockets.get(captainSocketId);
       if (captainSocket) {
@@ -121,15 +124,15 @@ module.exports.ConfirmRide = async(req, res) => {
      // console.log(ride.user.socketId)
       //console.log(ride.ridewithuser.user.socketId)
     // Notify user to start chat
-    io.to(ride.user.socketId).emit("start:chat", roomId);
-    console.log(`📢 Sent start:chat to user: ${ride.user.socketId}`);
+    io.to(userSocketId).emit("start:chat", roomId);
+    console.log(`📢 Sent start:chat to user: ${userSocketId}`);
 
     // Notify user that ride is confirmed
-    io.to(ride.user.socketId).emit("ride-confirmed", {
+    io.to(userSocketId).emit("ride-confirmed", {
       message: "Ride accepted",
       ride
     });
-    console.log(`✅ Sent ride-confirmed to user: ${ride.user.socketId}`);
+    console.log(`✅ Sent ride-confirmed to user: ${userSocketId}`);
 
     return res.status(200).json({ roomId, ride });
     
@@ -150,8 +153,11 @@ module.exports.StartRide = async(req,res)=>{
         
        const ride = await rideservice.Startride(rideId, OTP , captain)
           const io = getIO()
+          const redis = getRedis()
+         // const captainSocketId = await redis.get(`captainId:${captain._id}`)
+          const userSocketId = await redis.get(`userId:${ride.user._id}`)
        try {
-        io.to(ride.user.socketId).emit("ride-started" ,ride)
+        io.to(userSocketId).emit("ride-started" ,ride)
          return res.status(200).json(ride)
        } catch (error) {
            res.status(500).json({message:error.message})
@@ -170,8 +176,10 @@ module.exports.Endride = async(req,res)=>{
            throw new Error("Ride not found ")
         }
         const io = getIO()
+        const redis = await getRedis()
+        const userSocketId = await redis.get(`userId:${ride.user._id}`)
         try {
-           io.to(ride.user.socketId).emit("End-ride" , ride)
+           io.to(userSocketId).emit("End-ride" , ride)
          return  res.status(200).json(ride)
         } catch (error) {
              res.status(500).json({message:error.message})

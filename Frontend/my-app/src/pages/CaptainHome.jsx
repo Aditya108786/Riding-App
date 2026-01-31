@@ -129,7 +129,7 @@ const CaptainHome = () => {
     socket.emit("join", { userId: captain._id, userType: "captain" });
 
     const newridehandler = async (data) => {
-      console.log(data)
+      console.log("hey hey",data)
       const [pickupLng, pickupLat] = data.ridewithuser.pickup;
 
       const [destLng, destLat] = data.ridewithuser.destination;

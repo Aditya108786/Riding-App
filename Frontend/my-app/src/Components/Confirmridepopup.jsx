@@ -11,7 +11,7 @@ const Confirmridepopup = (props) => {
   const [loading, setLoading] = useState(false);
 
   // 🔐 SAFETY: Prevent crash if data not ready
-  if (!props?.ridedata?.ridewithuser) return null;
+  if (!props?.ridedata?.ride) return null;
 
   const { ridewithuser } = props.ridedata;
   const {socket , roomId} = useContext(SocketContext)
@@ -34,7 +34,7 @@ const Confirmridepopup = (props) => {
       const res = await axios.post(
        `${import.meta.env.VITE_BASE_URL}/ride/startride`,
         {
-          rideId: ridewithuser._id,
+          rideId: ride._id,
           OTP: otp,
         },
         {
@@ -83,12 +83,12 @@ const Confirmridepopup = (props) => {
         />
         <div>
           <h3 className="text-lg font-medium">
-            {ridewithuser.user?.fullname?.firstname || "Rider"}
+            {ride.user?.fullname?.firstname || "Rider"}
           </h3>
           <p className="text-sm text-gray-500">Cash Ride</p>
         </div>
         <p className="ml-auto text-sm font-medium text-gray-700">
-          ₹{ridewithuser.fare}
+          ₹{ride.fare}
         </p>
       </div>
 
@@ -99,7 +99,7 @@ const Confirmridepopup = (props) => {
           <div>
             <p className="font-medium">Pickup</p>
             <p className="text-sm text-gray-600">
-              {ridewithuser.pickup?.[0]}
+              {ride.pickup?.[0]}
             </p>
           </div>
         </div>
@@ -109,7 +109,7 @@ const Confirmridepopup = (props) => {
           <div>
             <p className="font-medium">Drop</p>
             <p className="text-sm text-gray-600">
-              {ridewithuser.destination?.[0]}
+              {ride.destination?.[0]}
             </p>
           </div>
         </div>

@@ -41,7 +41,7 @@ module.exports.createRide = async(req , res)=>{
           const io = getIO();
 captains.forEach(async(captain) => {
       const captainId = captain.member
-      const captainSocketId = await pubClient.get(`captain:${captainId}`)
+      const captainSocketId = await redis.get(`captain:${captainId}`)
       if(captainSocketId){
         io.to(captainSocketId).emit("newride" , {
             ridewithuser

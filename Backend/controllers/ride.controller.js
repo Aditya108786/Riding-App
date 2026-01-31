@@ -39,17 +39,18 @@ module.exports.createRide = async(req , res)=>{
            const ridewithuser = await ridemodel.findOne({_id:ride._id}).populate('user' , '-password -resetpasswordtoken -resetpasswordexpire')
             console.log("hrsd" , ridewithuser)
           const io = getIO();
-captains.forEach(async(captain) => {
-      const captainId = captain.member
-      console.log("yeah",captainId)
-      const captainSocketId = await redis.get(`captain:${captainId}`)
-      console.log("aaaah",captainSocketId)
-      if(captainSocketId){
-        io.to(captainSocketId).emit("newride" , {
-            ridewithuser
-        })
-      }
-});
+for(const captainId of captains ){
+     console.log("Captain ID:", captainId);
+
+  const captainSocketId = await redis.get(`captain:${captainId}`);
+  console.log("Socket:", captainSocketId);
+
+  if (captainSocketId) {
+    io.to(captainSocketId).emit("newride", {
+      ride: ridewithuser
+    });
+  }
+}
            
      } catch (error) {
       console.error("error in creating ride" , error)

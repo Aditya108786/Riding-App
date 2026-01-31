@@ -129,10 +129,10 @@ const CaptainHome = () => {
     socket.emit("join", { userId: captain._id, userType: "captain" });
 
     const newridehandler = async (data) => {
-      console.log("hey hey",data)
-      const [pickupLng, pickupLat] = data.ridewithuser.pickup;
+      //console.log("hey hey",data)
+      const [pickupLng, pickupLat] = data.ride.pickup;
 
-      const [destLng, destLat] = data.ridewithuser.destination;
+      const [destLng, destLat] = data.ride.destination;
       try {
         const [pickupAddr, destAddr] = await Promise.all([
           axios.post(`${import.meta.env.VITE_BASE_URL}/maps/getfulladdress`, { lat: pickupLat, lng: pickupLng }, { withCredentials: true }).then(res => res.data.address),

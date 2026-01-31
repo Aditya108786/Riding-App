@@ -13,7 +13,7 @@ export const Ridepopup = ({
   const { socket , setroomid } = useContext(SocketContext);
   const [loading, setLoading] = useState(false);
 
-  const user = ridedata?.ridewithuser?.user;
+  const user = ridedata?.ride?.user;
 
   const sendridetouser = async () => {
     try {
@@ -21,7 +21,7 @@ export const Ridepopup = ({
 
     const res =   await axios.post(
        `${import.meta.env.VITE_BASE_URL}/ride/confirmride`,
-        { rideId: ridedata.ridewithuser._id },
+        { rideId: ridedata?.ride?.user?._id },
         { withCredentials: true }
       );
 
@@ -71,7 +71,7 @@ export const Ridepopup = ({
           </div>
         </div>
         <div className="text-right">
-          <h5 className="text-lg font-bold text-gray-900">₹{ridedata?.ridewithuser?.fare}</h5>
+          <h5 className="text-lg font-bold text-gray-900">₹{ridedata?.ride?.fare}</h5>
           <p className="text-[10px] text-gray-400 font-bold uppercase">Estimated Fare</p>
         </div>
       </div>

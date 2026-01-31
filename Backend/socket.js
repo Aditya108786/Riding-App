@@ -35,6 +35,9 @@ async function initializesocket(server){
     });
 
      const redis = await connectRedis()
+     if(!redis){
+        throw new Error("Redis client not initialized")
+     }
      const subClient = redis.duplicate()
      await subClient.connect()
 

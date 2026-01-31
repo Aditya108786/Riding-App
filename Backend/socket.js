@@ -119,7 +119,11 @@ socket.on("send:message" ,({roomId, sender, message}) =>{
      })
 })
 
-      socket.on("captain-location-update", async({lat,lng})=>{
+      socket.on("captain-location-update", async(data)=>{
+        const {lat,lng} = data || {}
+        if(!lat || !lng){
+            return ;
+        }
           const captainId = socket.captainId
 
             await pubClient.geoAdd("captains:locations",{

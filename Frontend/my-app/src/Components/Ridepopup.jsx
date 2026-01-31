@@ -21,7 +21,7 @@ export const Ridepopup = ({
 
     const res =   await axios.post(
        `${import.meta.env.VITE_BASE_URL}/ride/confirmride`,
-        { rideId: ridedata?.ride?.user?._id },
+        { rideId: ridedata?.ride?._id },
         { withCredentials: true }
       );
 
@@ -29,7 +29,7 @@ export const Ridepopup = ({
           setroomid(res.data.roomId)
           socket.emit("start:chat-room",  res.data.roomId)
       socket?.emit("ride-accepted", {
-        rideId: ridedata.ridewithuser._id,
+        rideId: ridedata.ride._id,
       });
 
       setriderequestconfirm(true);

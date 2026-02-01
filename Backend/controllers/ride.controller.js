@@ -44,6 +44,8 @@ for(const captainId of captains ){
 
   const captainSocketId = await redis.get(`captain:${captainId}`);
   console.log("Socket:", captainSocketId);
+  const usersocketid = await redis.get(`user:${ride.user._id}`)
+  console.log("aah aah", usersocketid)
 
   if (captainSocketId) {
     io.to(captainSocketId).emit("newride", {

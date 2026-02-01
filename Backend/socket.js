@@ -146,12 +146,12 @@ socket.on("send:message" ,({roomId, sender, message}) =>{
 
     if (!ride) return;
 
-    // 3️⃣ Fetch user socketId from DB
-    const user = await usermodel.findById(ride.user).select("socketId");
-    if (!user?.socketId) return;
+    // 3️⃣ Fetch user socketId from Redis (socket IDs are stored in Redis, not DB)
+    const userSocketId = await redis.get(`user:${ride.user._id || ride.user}`);
+    if (!userSocketId) return;
 
     // 4️⃣ Emit live location to user
-    io.to(user.socketId).emit("captain-live-location", {
+    io.to(userSocketId).emit("captain-live-location", {
       lat,
       lng
     });
@@ -191,7 +191,7 @@ socket.on("send:message" ,({roomId, sender, message}) =>{
 
 function getIO(){
     if(!io){
-        throw new Error('socket.io is not initializes')
+        throw new Error('socket.io is not initialized')
     }
     return io
 }

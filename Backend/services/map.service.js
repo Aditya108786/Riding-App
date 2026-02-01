@@ -35,7 +35,7 @@ module.exports.getdistancetime = async(origin , destination)=>{
         {
             headers:{
                 Authorization:apikey,
-                "Content_type":"application/json"
+                "Content-Type":"application/json"
             }
         }
 

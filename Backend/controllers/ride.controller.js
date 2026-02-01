@@ -1,9 +1,8 @@
 const rideservice  = require('../services/ride.services')
 const mapservice = require('../services/map.service')
 const ridemodel = require('../models/ride.model')
-const {getRedis} = require("../config/Redis")
-const pubClient = require('../socket')
-const {getIO , sendmessagetosocketid, getuserSocketId  , captainsockets} = require('../socket')
+const { getRedis } = require("../config/Redis")
+const { getIO } = require('../socket')
 
 
 module.exports.createRide = async(req , res)=>{
@@ -15,44 +14,34 @@ module.exports.createRide = async(req , res)=>{
          const redis = getRedis()
         const ride = await rideservice.createride({pickup , destination , user:req.user._id,vehicleType })
         console.log("rde" , pickup)
-        
-        //const coordinates = await mapservice.addresscoordinate(pickup)
-          // console.log("PICKUP",coordinates)
-           
-           res.status(201).json(ride)
-           
 
-           //const captains = await mapservice.getCaptaininTheRadius(pickup[1] , pickup[0] , 30)
-              const captains = await redis.geoSearch(
-                        "captains:locations",
-                       {longitude:pickup[0],latitude:pickup[1]},
-                        {radius:50, unit:"km"}
-              )
-              if(!captains){
-                  return res.status(200).json({
-                    message:"No nearby captains",
-                    ride
-                  })
-              }
-           console.log("captains" , captains)
-           ride.OTP = null
-           const ridewithuser = await ridemodel.findOne({_id:ride._id}).populate('user' , '-password -resetpasswordtoken -resetpasswordexpire')
-            console.log("hrsd" , ridewithuser)
-          const io = getIO();
-for(const captainId of captains ){
-     console.log("Captain ID:", captainId);
-
-  const captainSocketId = await redis.get(`captain:${captainId}`);
-  console.log("Socket:", captainSocketId);
-  const usersocketid = await redis.get(`user:${ride.user._id}`)
-  console.log("aah aah", usersocketid)
-
-  if (captainSocketId) {
-    io.to(captainSocketId).emit("newride", {
-      ride: ridewithuser
-    });
-  }
-}
+        const captains = await redis.geoSearch(
+          "captains:locations",
+          {longitude:pickup[0],latitude:pickup[1]},
+          {radius:50, unit:"km"}
+        )
+        if(!captains || captains.length === 0){
+          return res.status(200).json({
+            message:"No nearby captains",
+            ride
+          })
+        }
+        console.log("captains" , captains)
+        ride.OTP = null
+        const ridewithuser = await ridemodel.findOne({_id:ride._id}).populate('user' , '-password -resetpasswordtoken -resetpasswordexpire')
+        console.log("hrsd" , ridewithuser)
+        const io = getIO();
+        for(const captainId of captains ){
+          console.log("Captain ID:", captainId);
+          const captainSocketId = await redis.get(`captain:${captainId}`);
+          console.log("Socket:", captainSocketId);
+          if (captainSocketId) {
+            io.to(captainSocketId).emit("newride", {
+              ride: ridewithuser
+            });
+          }
+        }
+        return res.status(201).json(ride)
            
      } catch (error) {
       console.error("error in creating ride" , error)
@@ -152,7 +141,7 @@ module.exports.StartRide = async(req,res)=>{
           const io = getIO()
           const redis = getRedis()
          // const captainSocketId = await redis.get(`captainId:${captain._id}`)
-          const userSocketId = await redis.get(`userId:${ride.user._id}`)
+          const userSocketId = await redis.get(`user:${ride.user._id}`)
        try {
         io.to(userSocketId).emit("ride-started" ,ride)
          return res.status(200).json(ride)
@@ -174,7 +163,7 @@ module.exports.Endride = async(req,res)=>{
         }
         const io = getIO()
         const redis = await getRedis()
-        const userSocketId = await redis.get(`userId:${ride.user._id}`)
+        const userSocketId = await redis.get(`user:${ride.user._id}`)
         try {
            io.to(userSocketId).emit("End-ride" , ride)
          return  res.status(200).json(ride)

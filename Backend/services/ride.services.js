@@ -156,7 +156,7 @@ module.exports.Endride = async(rideId , captain)=>{
              _id:rideId,
              status:"ongoing"
          }, {
-              status:"completed"
+              status:"Completed"
          },{
           new:true
          }).populate("user")
@@ -167,6 +167,6 @@ module.exports.Endride = async(rideId , captain)=>{
 
          return ride
       } catch (error) {
-           return (error.message)
+           throw error
       }
 }

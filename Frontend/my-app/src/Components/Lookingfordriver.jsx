@@ -38,6 +38,7 @@ export const Lookingfordriver = (props) => {
     const handler = async (data) => {
      
       setridestatus(data);
+      console.log("confirming ride",ride)
 
       if (data?.ride?.status === "Accepted") {
         const lng = data?.ride?.captain?.location?.lng ?? data?.ride?.captain?.location?.lon;

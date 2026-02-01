@@ -96,6 +96,8 @@ module.exports.ConfirmRide = async (req, res) => {
       return res.status(404).json({ message: "Ride not found" });
     }
 
+    console.log("yeah yeah yeah",ride)
+
     // 2️⃣ Get socket IDs from Redis
     const captainSocketId = await redis.get(`captain:${captain._id}`);
     const userSocketId = await redis.get(`user:${ride.user._id}`);

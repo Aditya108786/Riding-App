@@ -98,7 +98,7 @@ module.exports.ConfirmRide = async (req, res) => {
 
     // 2️⃣ Get socket IDs from Redis
     const captainSocketId = await redis.get(`captain:${captain._id}`);
-    const userSocketId = await redis.get(`user:${ride.user}`);
+    const userSocketId = await redis.get(`user:${ride.user._id}`);
 
     if (!userSocketId) {
       console.log("⚠️ User offline");

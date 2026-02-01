@@ -66,7 +66,7 @@ export const Lookingfordriver = (props) => {
 
     socket?.on("ride-confirmed", handler);
     return () => socket?.off("ride-confirmed", handler);
-  }, [socket, setlivelocation, props]);
+  }, [socket]);
 
 
   useEffect(()=>{

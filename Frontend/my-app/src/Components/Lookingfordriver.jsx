@@ -6,6 +6,7 @@ import { useNavigate } from "react-router-dom";
 import markerIcon2x from 'leaflet/dist/images/marker-icon-2x.png';
 import markerShadow from 'leaflet/dist/images/marker-shadow.png';
 import { Ridingcontext } from "../context/Ridingcontext";
+import { UserdataContext } from "../context/usercontext";
 import { useRef } from "react";         
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
@@ -25,6 +26,7 @@ const customCaptainIcon = new L.Icon({
 export const Lookingfordriver = (props) => {
   const { setlivelocation, livelocation, socket } = useContext(SocketContext);
   const { setridingdata } = useContext(Ridingcontext);
+  const { user } = useContext(UserdataContext);
   const [ridestatus, setridestatus] = useState({});
   const [fullAddress, setFullAddress] = useState("");
   const [roomid , setroomid] = useState(null)
@@ -32,13 +34,26 @@ export const Lookingfordriver = (props) => {
   const [messagepanel , setmessagepanel] = useState(false)
 
   const messageref = useRef()
+  const userId = user?.user?._id || user?._id;
+
+  // Ensure user joins socket so Redis has user:<id> -> socket.id
+  useEffect(() => {
+    if (!socket || !userId) return;
+    if (socket.connected) {
+      socket.emit("join", { userId, userType: "user" });
+    } else {
+      const handleConnect = () => socket.emit("join", { userId, userType: "user" });
+      socket.on("connect", handleConnect);
+      return () => socket.off("connect", handleConnect);
+    }
+  }, [socket, userId]);
 
   // Handle ride-confirmed event and set initial driver location + details
   useEffect(() => {
     const handler = async (data) => {
      
       setridestatus(data);
-      console.log("confirming ride",ride)
+      console.log("confirming ride", data)
 
       if (data?.ride?.status === "Accepted") {
         const lng = data?.ride?.captain?.location?.lng ?? data?.ride?.captain?.location?.lon;

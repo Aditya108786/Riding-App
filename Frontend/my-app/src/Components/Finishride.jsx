@@ -1,40 +1,92 @@
 import axios from "axios";
-import React, { useContext } from "react";
+import React, { useContext, useMemo, useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import "remixicon/fonts/remixicon.css";
-import { Ridingcontext } from "../context/Ridingcontext";
 import { CaptaindataContext } from "../context/captaincontext";
-import {SocketContext} from "../context/socketcontext"
 
 const Finishride = (props) => {
   const navigate = useNavigate();
-   const {ridingdata} = useContext(Ridingcontext)
-    const { currentRide, setCurrentRide } = useContext(CaptaindataContext);
-   
+  const { currentRide, setCurrentRide } = useContext(CaptaindataContext);
+  const [loading, setLoading] = useState(false);
+  const [pickupAddress, setPickupAddress] = useState("");
+  const [dropAddress, setDropAddress] = useState("");
 
+  const riderName = useMemo(() => {
+    const user = currentRide?.user || currentRide?.ridewithuser?.user;
+    const first = user?.fullname?.firstname || "Rider";
+    const last = user?.fullname?.lastname || "";
+    return `${first} ${last}`.trim();
+  }, [currentRide]);
 
-   const navigatetohome = ()=>{
-       navigate("/CaptainHome")
-   }
+  const pickupText = useMemo(() => {
+    const pickup = currentRide?.pickup;
+    if (Array.isArray(pickup) && pickup.length === 2) {
+      return `${pickup[1]}, ${pickup[0]}`;
+    }
+    return "Pickup location";
+  }, [currentRide]);
 
-  const FinishRide = async()=>{
-       const res = await axios.post(`${import.meta.env.VITE_BASE_URL}/ride/endride` ,{
-          rideId:currentRide._id   
-       },
-       {
-        withCredentials:true
-       }
-      )
+  const dropText = useMemo(() => {
+    const destination = currentRide?.destination;
+    if (Array.isArray(destination) && destination.length === 2) {
+      return `${destination[1]}, ${destination[0]}`;
+    }
+    return "Drop location";
+  }, [currentRide]);
 
-      if(res.status == 200){
-            console.log("ride finished")
-            setCurrentRide(null)
+  const fareText = useMemo(() => {
+    const fare = currentRide?.fare || currentRide?.ridewithuser?.fare;
+    return fare != null ? `?${fare}` : "Fare";
+  }, [currentRide]);
+
+  useEffect(() => {
+    const fetchAddresses = async () => {
+      if (!currentRide?.pickup || !currentRide?.destination) return;
+      const [pickupLng, pickupLat] = currentRide.pickup;
+      const [destLng, destLat] = currentRide.destination;
+      try {
+        const [pickupRes, destRes] = await Promise.all([
+          axios.post(
+            `${import.meta.env.VITE_BASE_URL}/maps/getfulladdress`,
+            { lat: pickupLat, lng: pickupLng },
+            { withCredentials: true }
+          ),
+          axios.post(
+            `${import.meta.env.VITE_BASE_URL}/maps/getfulladdress`,
+            { lat: destLat, lng: destLng },
+            { withCredentials: true }
+          )
+        ]);
+        setPickupAddress(pickupRes.data.address);
+        setDropAddress(destRes.data.address);
+      } catch (err) {
+        console.error("address fetch error", err);
       }
-  }
+    };
+    fetchAddresses();
+  }, [currentRide?.pickup, currentRide?.destination]);
+
+  const FinishRide = async () => {
+    if (!currentRide?._id) {
+      return;
+    }
+    setLoading(true);
+    const res = await axios.post(
+      `${import.meta.env.VITE_BASE_URL}/ride/endride`,
+      { rideId: currentRide._id },
+      { withCredentials: true }
+    );
+
+    if (res.status == 200) {
+      console.log("ride finished");
+      setCurrentRide(null);
+      navigate("/CaptainHome");
+    }
+    setLoading(false);
+  };
 
   return (
     <div className="w-full rounded-t-3xl bg-white p-6 shadow-2xl">
-
       {/* DRAG HANDLE */}
       <div
         className="flex justify-center mb-4"
@@ -46,31 +98,26 @@ const Finishride = (props) => {
       {/* RIDER HEADER */}
       <div className="flex items-center gap-4 mb-6">
         <img
-          src="https://randomuser.me/api/portraits/men/45.jpg"
+          src={currentRide?.user?.profilePic || "https://randomuser.me/api/portraits/men/45.jpg"}
           alt="rider"
           className="w-14 h-14 rounded-full border object-cover"
         />
         <div>
           <h3 className="text-lg font-semibold text-gray-900">
-            Rahul Verma
+            {riderName}
           </h3>
-          <p className="text-sm text-gray-500">
-            Ride completed successfully
-          </p>
+          <p className="text-sm text-gray-500">Ride completed successfully</p>
         </div>
       </div>
 
       {/* RIDE DETAILS */}
       <div className="flex flex-col gap-4 mb-6">
-
         {/* PICKUP */}
         <div className="flex items-start gap-3">
           <i className="ri-map-pin-2-fill text-green-600 text-xl"></i>
           <div>
             <h4 className="font-medium text-gray-800">Pickup</h4>
-            <p className="text-sm text-gray-500">
-              Sector 15, Gurugram
-            </p>
+            <p className="text-sm text-gray-500">{pickupAddress || pickupText}</p>
           </div>
         </div>
 
@@ -79,9 +126,7 @@ const Finishride = (props) => {
           <i className="ri-map-pin-2-fill text-red-500 text-xl"></i>
           <div>
             <h4 className="font-medium text-gray-800">Drop</h4>
-            <p className="text-sm text-gray-500">
-              IGI Airport, Delhi
-            </p>
+            <p className="text-sm text-gray-500">{dropAddress || dropText}</p>
           </div>
         </div>
 
@@ -90,23 +135,18 @@ const Finishride = (props) => {
           <i className="ri-currency-line text-yellow-500 text-xl"></i>
           <div>
             <h4 className="font-medium text-gray-800">Fare</h4>
-            <p className="text-sm text-gray-500">
-              ₹380 • Cash Payment
-            </p>
+            <p className="text-sm text-gray-500">{fareText} � Cash Payment</p>
           </div>
         </div>
       </div>
 
       {/* ACTION BUTTON */}
       <button
-        onClick={ async ()=>{
-          await FinishRide()
-          navigatetohome()
-        }}
-
-        className="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-4 rounded-xl transition-all"
+        onClick={FinishRide}
+        disabled={loading || !currentRide?._id}
+        className="w-full bg-green-600 hover:bg-green-700 disabled:opacity-60 text-white font-semibold py-4 rounded-xl transition-all"
       >
-        Finish Ride
+        {loading ? "Finishing..." : "Finish Ride"}
       </button>
     </div>
   );

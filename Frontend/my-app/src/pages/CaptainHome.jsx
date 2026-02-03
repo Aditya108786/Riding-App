@@ -105,22 +105,18 @@ const CaptainHome = () => {
        })
  },[socket,livelocation])
 
-  /*useEffect(()=>{
-           
-    if(!socket || !captain?._id || !livelocation){
-                return;
+  useEffect(()=>{
+    if(!socket || !captain?._id || !livelocation || !riderequestconfirm || !ridedata?.ride?._id){
+      return;
     }
 
     socket.emit("captain-location" , {
-        
-         captainId:captain._id,
-         lat:livelocation.lat,
-         lng:livelocation.lng
+      captainId:captain._id,
+      rideId:ridedata.ride._id,
+      lat:livelocation.lat,
+      lng:livelocation.lng
     })
-      
-
-
-  },[livelocation , captain?._id , socket]*/
+  },[livelocation , captain?._id , socket, riderequestconfirm, ridedata?.ride?._id])
 
 
 

@@ -26,6 +26,12 @@ export const Ridinguser = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
+    if (!socket || !ridingdata?._id) return;
+    const roomId = `chat_${ridingdata._id}`;
+    socket.emit("start:chat-room", roomId);
+  }, [socket, ridingdata?._id]);
+
+  useEffect(() => {
     if (!socket) return;
 
     const confirmedHandler = async (data) => {

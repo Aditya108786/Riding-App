@@ -87,7 +87,8 @@ async function initializesocket(server){
 
 socket.on("start:chat-room" , (roomId)=>{
      socket.join(roomId)
-     console.log(`SocketId${socket.id} joined from roomId ${roomId}`)
+     const roomSize = io?.sockets?.adapter?.rooms?.get(roomId)?.size || 0;
+     console.log(`SocketId${socket.id} joined from roomId ${roomId}. roomSize=${roomSize}`)
 })
 
 socket.on("send:message" ,({roomId, sender, message}) =>{
@@ -114,17 +115,15 @@ socket.on("send:message" ,({roomId, sender, message}) =>{
      
 
         // Listen for captain location updates and forward them to the user of this ride
+        // Listen for captain location updates and broadcast to ride room
         socket.on("captain-location", async (data) => {
   try {
-    const { captainId, lat, lng } = data || {};
+    const { captainId, rideId, lat, lng } = data || {};
 
     if (!captainId || lat == null || lng == null) {
       console.log("❌ Invalid captain-location payload:", data);
       return;
     }
-
-    console.log("📍 Captain:", captainId);
-    console.log("📍 Live location:", lat, lng);
 
     // 1️⃣ Update captain location
     await captainModel.findByIdAndUpdate(
@@ -138,23 +137,32 @@ socket.on("send:message" ,({roomId, sender, message}) =>{
       { new: true }
     );
 
-    // 2️⃣ Find active ride for this captain
-    const ride = await Ride.findOne({
-      captain: captainId,
-      status: { $in: ["Accepted", "Ongoing"] }
-    });
+    // 2️⃣ Find active ride for this captain (prefer explicit rideId)
+    const ride = rideId
+      ? await Ride.findById(rideId)
+      : await Ride.findOne({
+          captain: captainId,
+          status: { $in: ["Accepted", "Ongoing", "ongoing"] }
+        });
 
     if (!ride) return;
 
-    // 3️⃣ Fetch user socketId from DB
-    const user = await usermodel.findById(ride.user).select("socketId");
-    if (!user?.socketId) return;
+    const roomId = `chat_${ride._id}`;
 
-    // 4️⃣ Emit live location to user
-    io.to(user.socketId).emit("captain-live-location", {
+    // 3️⃣ Emit live location to the ride room
+    io.to(roomId).emit("captain-live-location", {
       lat,
       lng
     });
+    const roomSize = io?.sockets?.adapter?.rooms?.get(roomId)?.size || 0;
+    console.log(`📡 captain-live-location -> ${roomId} (roomSize=${roomSize})`);
+
+    // 4️⃣ Optional direct emit to user socket if available in Redis
+    const userId = ride.user?._id || ride.user;
+    const userSocketId = await redis.get(`user:${userId}`);
+    if (userSocketId) {
+      io.to(userSocketId).emit("captain-live-location", { lat, lng });
+    }
 
   } catch (err) {
     console.error("❌ Error handling captain-location:", err);
@@ -162,10 +170,7 @@ socket.on("send:message" ,({roomId, sender, message}) =>{
 });
 
 
-
-       
-
-       socket.on('disconnect', async () => {
+ socket.on('disconnect', async () => {
     console.log(`Client disconnected: ${socket.id}`);
     
     // Clean up user socketId
@@ -177,7 +182,19 @@ socket.on("send:message" ,({roomId, sender, message}) =>{
          await redis.del(`captain:${socket.captainId}`)
     }
 });
-    })
+
+    
+
+    
+ 
+});
+
+
+
+       
+
+      
+    
 }
 
 

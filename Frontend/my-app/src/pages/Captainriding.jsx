@@ -65,14 +65,17 @@ const CaptainRiding = () => {
 
   useEffect(()=>{
         console.log("currentride" , currentRide)
-         const watchId = navigator.geolocation.watchPosition((position)=>{
+        if (!socket || !currentRide?._id) {
+          return;
+        }
+        const watchId = navigator.geolocation.watchPosition((position)=>{
                  
                setLat(position.coords.latitude)
                setLng(position.coords.longitude)
 
                socket.emit("captain-location" , {
                     captainId:currentRide.captain._id,
-                    userId:currentRide.user._id,
+                    rideId:currentRide._id,
                     lat:position.coords.latitude,
                     lng:position.coords.longitude
                })
@@ -94,7 +97,7 @@ const CaptainRiding = () => {
 
         return ()=> {navigator.geolocation.clearWatch(watchId)}
          
-  },[socket])
+  },[socket, currentRide?._id, currentRide?.captain?._id])
 
   const CaptainMapControl = ({ deps = [] }) => {
     const map = useMap();

@@ -54,6 +54,12 @@ export const Lookingfordriver = (props) => {
      
       setridestatus(data);
       console.log("confirming ride", data)
+      const rideId = data?.ride?._id || data?._id;
+      if (rideId && socket) {
+        const roomId = `chat_${rideId}`;
+        socket.emit("start:chat-room", roomId);
+        setroomid(roomId);
+      }
 
       if (data?.ride?.status === "Accepted") {
         const lng = data?.ride?.captain?.location?.lng ?? data?.ride?.captain?.location?.lon;

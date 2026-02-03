@@ -21,7 +21,7 @@ export const Ridinguser = () => {
   const { socket, livelocation, setlivelocation } = useContext(SocketContext);
   const [rideStatus, setRideStatus] = useState(null);
   const [fullAddress, setFullAddress] = useState("");
-  const { ridingdata } = useContext(Ridingcontext);
+  const { ridingdata, setridingdata } = useContext(Ridingcontext);
 
   const navigate = useNavigate();
 
@@ -83,6 +83,7 @@ export const Ridinguser = () => {
   useEffect(() => {
     const handler = (data) => {
       console.log("ride ended", data);
+      setridingdata?.(null);
       navigate("/Userhome");
     };
 

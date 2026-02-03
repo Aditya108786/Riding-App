@@ -151,10 +151,14 @@ module.exports.StartRide = async(req,res)=>{
        const ride = await rideservice.Startride(rideId, OTP , captain)
           const io = getIO()
           const redis = getRedis()
-         // const captainSocketId = await redis.get(`captainId:${captain._id}`)
-          const userSocketId = await redis.get(`userId:${ride.user._id}`)
+          const userId = ride.user?._id || ride.user
+          const userSocketId = await redis.get(`user:${userId}`)
+          const roomId = `chat_${ride._id}`
        try {
-        io.to(userSocketId).emit("ride-started" ,ride)
+        io.to(roomId).emit("ride-started" ,ride)
+        if (userSocketId) {
+          io.to(userSocketId).emit("ride-started" ,ride)
+        }
          return res.status(200).json(ride)
        } catch (error) {
            res.status(500).json({message:error.message})
@@ -174,9 +178,14 @@ module.exports.Endride = async(req,res)=>{
         }
         const io = getIO()
         const redis = await getRedis()
-        const userSocketId = await redis.get(`userId:${ride.user._id}`)
+        const userId = ride.user?._id || ride.user
+        const userSocketId = await redis.get(`user:${userId}`)
+        const roomId = `chat_${ride._id}`
         try {
-           io.to(userSocketId).emit("End-ride" , ride)
+           io.to(roomId).emit("End-ride" , ride)
+           if (userSocketId) {
+             io.to(userSocketId).emit("End-ride" , ride)
+           }
          return  res.status(200).json(ride)
         } catch (error) {
              res.status(500).json({message:error.message})

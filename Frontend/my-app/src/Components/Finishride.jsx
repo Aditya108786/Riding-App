@@ -9,7 +9,7 @@ import {SocketContext} from "../context/socketcontext"
 const Finishride = (props) => {
   const navigate = useNavigate();
    const {ridingdata} = useContext(Ridingcontext)
-    const { currentRide } = useContext(CaptaindataContext);
+    const { currentRide, setCurrentRide } = useContext(CaptaindataContext);
    
 
 
@@ -28,6 +28,7 @@ const Finishride = (props) => {
 
       if(res.status == 200){
             console.log("ride finished")
+            setCurrentRide(null)
       }
   }
 
@@ -98,11 +99,10 @@ const Finishride = (props) => {
 
       {/* ACTION BUTTON */}
       <button
-        onClick={ ()=>{
-          FinishRide()
+        onClick={ async ()=>{
+          await FinishRide()
           navigatetohome()
-        }
-        }
+        }}
 
         className="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-4 rounded-xl transition-all"
       >

@@ -70,11 +70,9 @@ export const Lookingfordriver = (props) => {
 
 
   useEffect(()=>{
-      
-       
-    socket.on("start:chat" , (roomId)=>{
+       socket.on("start:chat" , (roomId)=>{
           setroomid(roomId)
-         socket.emit("start:chat-room" , 
+         socket.emit("start:chat-room", 
           roomId
          )
     })

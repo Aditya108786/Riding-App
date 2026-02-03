@@ -95,7 +95,7 @@ module.exports.ConfirmRide = async (req, res) => {
     // 1️⃣ Confirm ride
     const ride = await rideservice.confirmRide(rideId, captain);
     if (!ride) {
-      return res.status(404).json({ message: "Ride not found" });
+      return res.status(409).json({ message: "Ride already accepted" });
     }
 
     console.log("yeah yeah yeah",ride)

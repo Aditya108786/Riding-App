@@ -102,7 +102,7 @@ module.exports.confirmRide = async(rideId , captain)=>{
           throw new Error(" confirmride RideId is required")
         }
 
-       const ride =  await ridemodel.findOneAndUpdate({_id:rideId} , {
+       const ride =  await ridemodel.findOneAndUpdate({_id:rideId, status:"Pending"} , {
               status:'Accepted',
               captain:captain._id
         },{

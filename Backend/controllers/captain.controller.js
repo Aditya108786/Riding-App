@@ -2,6 +2,7 @@
 const blacklistTokenModel = require('../models/blacklistToken')
 const captainModel = require('../models/captain.model')
 const captainService = require('../services/captain.service')
+const Ride = require('../models/ride.model')
 const {validationResult} = require('express-validator')
 
 module.exports.registerCaptain = async function(req,res,next){
@@ -72,7 +73,28 @@ module.exports.captainLogin = async(req,res,next)=>{
 
 module.exports.getCaptainprofile = async(req,res,next)=>{
     const captain = req.captain
-    res.status(200).json(captain)
+    try {
+      const totalRides = await Ride.countDocuments({
+        captain: captain._id,
+        status: "Completed"
+      })
+
+      const earningsAgg = await Ride.aggregate([
+        { $match: { captain: captain._id, status: "Completed" } },
+        { $group: { _id: null, total: { $sum: "$fare" } } }
+      ])
+      const totalEarnings = earningsAgg?.[0]?.total || 0
+
+      res.status(200).json({
+        ...captain.toObject(),
+        stats: {
+          totalRides,
+          totalEarnings
+        }
+      })
+    } catch (err) {
+      res.status(200).json(captain)
+    }
 }
 
 module.exports.reset_password = async(req,res)=>{

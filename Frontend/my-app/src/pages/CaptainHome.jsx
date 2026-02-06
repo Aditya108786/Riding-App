@@ -192,6 +192,10 @@ const CaptainHome = () => {
               destinationaddress={destinationaddress} 
               setdeclineride={setdeclineride} 
               setriderequestconfirm={setriderequestconfirm} 
+              onConfirmOpen={() => {
+                setrideconfirmMinimized(false);
+                setriderequestconfirm(true);
+              }}
             />
           )}
         </div>

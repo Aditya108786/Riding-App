@@ -25,6 +25,7 @@ const customCaptainIcon = new L.Icon({
 const CaptainHome = () => {
   const [Declineride, setdeclineride] = useState(true);
   const [riderequestconfirm, setriderequestconfirm] = useState(false);
+  const [rideconfirmMinimized, setrideconfirmMinimized] = useState(false);
   const [ridedata, setridedata] = useState(null);
   const [pickupaddress, setpickupaddress] = useState("");
   const [destinationaddress, setdestinationaddress] = useState("");
@@ -55,6 +56,10 @@ const CaptainHome = () => {
       duration: 0.3,
       ease: "power2.out",
     });
+  }, [riderequestconfirm]);
+
+  useEffect(() => {
+    if (riderequestconfirm) setrideconfirmMinimized(false);
   }, [riderequestconfirm]);
 
   useEffect(()=>{
@@ -192,17 +197,28 @@ const CaptainHome = () => {
         </div>
       </div>
 
-      <div ref={rideconfirmref} className="fixed bottom-0 w-full z-50 h-screen translate-y-full">
+      <div ref={rideconfirmref} className={`fixed bottom-0 w-full z-50 h-screen translate-y-full ${rideconfirmMinimized ? "pointer-events-none" : ""}`} hidden={!riderequestconfirm || rideconfirmMinimized}>
         <div className="bg-white h-full shadow-2xl px-5 py-8 overflow-y-auto">
           {ridedata && (
             <Confirmridepopup 
               ridedata={ridedata} 
               captain={captain} 
               setriderequestconfirm={setriderequestconfirm} 
+              onMinimize={() => setrideconfirmMinimized(true)}
             />
           )}
         </div>
       </div>
+
+      {riderequestconfirm && rideconfirmMinimized && (
+        <button
+          onClick={() => setrideconfirmMinimized(false)}
+          className="fixed right-4 bottom-4 z-50 bg-black text-white px-4 py-3 rounded-full shadow-lg pointer-events-auto flex items-center gap-2"
+        >
+          <i className="ri-arrow-up-s-line text-xl"></i>
+          <span className="text-sm font-semibold">Confirm Ride</span>
+        </button>
+      )}
     </div>
   );
 };

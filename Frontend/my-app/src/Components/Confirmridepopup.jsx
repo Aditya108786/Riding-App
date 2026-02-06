@@ -60,7 +60,7 @@ const Confirmridepopup = (props) => {
       
       {/* Close Button */}
       <h5
-        onClick={() => props.setriderequestconfirm(false)}
+        onClick={() => (props?.onMinimize ? props.onMinimize() : props.setriderequestconfirm(false))}
         className="absolute top-3 w-full text-center"
       >
         <i className="ri-arrow-down-wide-line text-3xl text-gray-500"></i>

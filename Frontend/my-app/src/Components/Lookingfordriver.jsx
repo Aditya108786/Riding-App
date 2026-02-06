@@ -152,7 +152,11 @@ export const Lookingfordriver = (props) => {
       {/* Drag handle/header */}
       <div className="py-2 px-4 flex items-center justify-between sticky top-0 bg-white z-10">
         <div className="w-12 mx-auto h-1.5 rounded-full bg-gray-300"></div>
-        <button onClick={() => props.setvehiclefound(false)} className="text-gray-600 absolute right-4">
+        <button
+          onClick={() => (props?.onMinimize ? props.onMinimize() : props.setvehiclefound(false))}
+          className="text-gray-600 absolute right-4"
+          aria-label="Minimize panel"
+        >
           <i className="ri-close-line text-2xl"></i>
         </button>
       </div>

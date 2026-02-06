@@ -62,6 +62,7 @@ const Userhome = () => {
   const confirmrideref = useRef(null);
   const [confirmride, setconfirmride] = useState(false);
   const [vehiclefound, setvehiclefound] = useState(false);
+  const [vehiclefoundMinimized, setvehiclefoundMinimized] = useState(false);
   const vehiclefoundref = useRef(null);
   const waitingdriverref = useRef(null);
   const [summary, setsummary] = useState({});
@@ -104,6 +105,10 @@ const Userhome = () => {
     } else {
       gsap.to(vehiclefoundref.current, { y: 100, opacity: 0, height: "0%", duration: 0.4, ease: "power2.in" });
     }
+  }, [vehiclefound]);
+
+  useEffect(() => {
+    if (vehiclefound) setvehiclefoundMinimized(false);
   }, [vehiclefound]);
 
   const fetchFares = async (type, setter) => {
@@ -256,9 +261,20 @@ const Userhome = () => {
           </div>
 
           {/* Looking for Driver Panel */}
-          <div ref={vehiclefoundref} hidden={!vehiclefound} className="fixed left-0 md:left-4 bottom-0 md:bottom-4 w-full md:max-w-lg z-50 bg-white rounded-t-3xl md:rounded-3xl px-4 py-4 shadow-2xl pointer-events-auto">
-            <Lookingfordriver setvehiclefound={setvehiclefound} />
+          <div ref={vehiclefoundref} hidden={!vehiclefound || vehiclefoundMinimized} className="fixed left-0 md:left-4 bottom-0 md:bottom-4 w-full md:max-w-lg z-50 bg-white rounded-t-3xl md:rounded-3xl px-4 py-4 shadow-2xl pointer-events-auto">
+            <Lookingfordriver setvehiclefound={setvehiclefound} onMinimize={() => setvehiclefoundMinimized(true)} />
           </div>
+
+          {/* Minimized Toggle */}
+          {vehiclefound && vehiclefoundMinimized && (
+            <button
+              onClick={() => setvehiclefoundMinimized(false)}
+              className="fixed right-4 bottom-4 z-50 bg-black text-white px-4 py-3 rounded-full shadow-lg pointer-events-auto flex items-center gap-2"
+            >
+              <i className="ri-arrow-up-s-line text-xl"></i>
+              <span className="text-sm font-semibold">Driver Status</span>
+            </button>
+          )}
         </div>
       </div>
     </div>

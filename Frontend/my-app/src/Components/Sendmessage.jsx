@@ -1,7 +1,7 @@
 import { useContext, useEffect, useState } from "react";
 import { SocketContext } from "../context/socketcontext";
 
-export const Sendmessage = ({ roomid }) => {
+export const Sendmessage = ({ roomid, mode = "fixed" }) => {
   const { socket } = useContext(SocketContext);
   const [message, setMessage] = useState("");
   const [messages, setMessages] = useState([]);
@@ -37,8 +37,14 @@ export const Sendmessage = ({ roomid }) => {
     setMessage("");
   };
 
+  const isPanel = mode === "panel";
+
   return (
-    <div className="fixed bottom-0 left-0 w-full bg-white border-t shadow-xl rounded-t-2xl">
+    <div
+      className={`bg-white border-t shadow-xl rounded-t-2xl ${
+        isPanel ? "w-full h-full flex flex-col" : "fixed bottom-0 left-0 w-full"
+      }`}
+    >
       {/* Header */}
       <div className="p-3 border-b font-semibold flex items-center justify-between">
         <span>Chat with Captain</span>
@@ -55,7 +61,7 @@ export const Sendmessage = ({ roomid }) => {
       {!isMinimized && (
         <>
           {/* Messages */}
-          <div className="h-48 overflow-y-auto p-3 space-y-2 bg-gray-50">
+          <div className={`${isPanel ? "flex-1" : "h-48"} overflow-y-auto p-3 space-y-2 bg-gray-50`}>
             {messages.map((msg, idx) => (
               <div
                 key={idx}

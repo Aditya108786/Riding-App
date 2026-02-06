@@ -157,7 +157,8 @@ export const Lookingfordriver = (props) => {
         </button>
       </div>
 
-      <div className="flex-1 overflow-y-auto pb-4">
+      <div className={`flex-1 ${messagepanel ? "overflow-hidden" : "overflow-y-auto pb-4"}`}>
+        <div className={messagepanel ? "h-1/2 overflow-y-auto pb-4" : ""}>
         {/* Status */}
         <div className="px-6 mb-4 text-center">
           <h3 className="text-xl md:text-2xl font-semibold">
@@ -237,19 +238,16 @@ export const Lookingfordriver = (props) => {
               >
                 Message
               </button>
-
-              {
-                messagepanel && (
-<div ref={messageref}>
-               <Sendmessage roomid={roomid} />
-              </div>
-                )
-              }
-              
-              
             </div>
           </div>
         </div>
+        </div>
+
+        {messagepanel && (
+          <div ref={messageref} className="h-1/2 border-t">
+            <Sendmessage roomid={roomid} mode="panel" />
+          </div>
+        )}
       </div>
     </div>
   );

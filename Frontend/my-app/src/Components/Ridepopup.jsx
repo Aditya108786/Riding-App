@@ -9,7 +9,7 @@ export const Ridepopup = ({
   destinationaddress,
   setdeclineride,
   setriderequestconfirm,
- 
+  onConfirmOpen,
 }) => {
   const { socket , setroomid } = useContext(SocketContext);
   const [loading, setLoading] = useState(false);
@@ -19,6 +19,9 @@ export const Ridepopup = ({
   const sendridetouser = async () => {
     try {
       setLoading(true);
+      if (onConfirmOpen) onConfirmOpen();
+      setriderequestconfirm(true);
+      setdeclineride(true);
 
     const res =   await axios.post(
        `${import.meta.env.VITE_BASE_URL}/ride/confirmride`,
@@ -35,10 +38,9 @@ export const Ridepopup = ({
         ride
       });
 
-      
-      setriderequestconfirm(false);
-      setdeclineride(true);
     } catch (err) {
+      setriderequestconfirm(true);
+      setdeclineride(false);
       alert("Failed to accept ride");
     } finally {
       setLoading(false);

@@ -38,7 +38,7 @@ export const Sendmessage = ({ roomid }) => {
   };
 
   return (
-    <div className="fixed bottom-0 left-0 w-full bg-white border-t shadow-xl rounded-t-2xl">
+    <div className="fixed inset-0 z-50 w-full h-full bg-white/95 border-t shadow-xl rounded-t-2xl flex flex-col">
       {/* Header */}
       <div className="p-3 border-b font-semibold flex items-center justify-between">
         <span>Chat with Captain</span>
@@ -55,7 +55,7 @@ export const Sendmessage = ({ roomid }) => {
       {!isMinimized && (
         <>
           {/* Messages */}
-          <div className="h-48 overflow-y-auto p-3 space-y-2 bg-gray-50">
+          <div className="flex-1 min-h-0 overflow-y-auto p-3 space-y-2 bg-gray-50">
             {messages.map((msg, idx) => (
               <div
                 key={idx}

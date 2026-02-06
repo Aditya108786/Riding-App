@@ -38,22 +38,22 @@ export const Sendmessage = ({ roomid }) => {
   };
 
   return (
-    <div className="fixed inset-0 z-50 w-full h-full bg-white/95 border-t shadow-xl rounded-t-2xl flex flex-col">
-      {/* Header */}
-      <div className="p-3 border-b font-semibold flex items-center justify-between">
-        <span>Chat with Captain</span>
-        <button
-          type="button"
-          onClick={() => setIsMinimized((prev) => !prev)}
-          className="text-gray-600"
-          aria-label={isMinimized ? "Maximize chat" : "Minimize chat"}
-        >
-          <i className={isMinimized ? "ri-arrow-up-s-line text-xl" : "ri-subtract-line text-xl"}></i>
-        </button>
-      </div>
+    <div className="fixed inset-0 z-50 w-full h-full flex flex-col">
+      {!isMinimized ? (
+        <div className="w-full h-full bg-white/95 border-t shadow-xl rounded-t-2xl flex flex-col">
+          {/* Header */}
+          <div className="p-3 border-b font-semibold flex items-center justify-between">
+            <span>Chat with Captain</span>
+            <button
+              type="button"
+              onClick={() => setIsMinimized(true)}
+              className="text-gray-600"
+              aria-label="Minimize chat"
+            >
+              <i className="ri-subtract-line text-xl"></i>
+            </button>
+          </div>
 
-      {!isMinimized && (
-        <>
           {/* Messages */}
           <div className="flex-1 min-h-0 overflow-y-auto p-3 space-y-2 bg-gray-50">
             {messages.map((msg, idx) => (
@@ -95,7 +95,16 @@ export const Sendmessage = ({ roomid }) => {
               Send
             </button>
           </form>
-        </>
+        </div>
+      ) : (
+        <button
+          onClick={() => setIsMinimized(false)}
+          className="fixed right-4 bottom-4 z-50 bg-black text-white px-4 py-2 rounded-full shadow-lg flex items-center gap-2"
+          aria-label="Maximize chat"
+        >
+          <i className="ri-arrow-up-s-line text-xl"></i>
+          <span className="text-sm font-semibold">Chat</span>
+        </button>
       )}
     </div>
   );

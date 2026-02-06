@@ -61,7 +61,7 @@ export const Sendmessage = ({ roomid, mode = "fixed" }) => {
       {!isMinimized && (
         <>
           {/* Messages */}
-          <div className={`${isPanel ? "flex-1" : "h-48"} overflow-y-auto p-3 space-y-2 bg-gray-50`}>
+          <div className={`${isPanel ? "flex-1 min-h-0" : "h-48"} overflow-y-auto p-3 space-y-2 bg-gray-50`}>
             {messages.map((msg, idx) => (
               <div
                 key={idx}

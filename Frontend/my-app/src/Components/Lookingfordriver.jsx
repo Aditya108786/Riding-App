@@ -161,8 +161,8 @@ export const Lookingfordriver = (props) => {
         </button>
       </div>
 
-      <div className={`flex-1 ${messagepanel ? "overflow-hidden min-h-0" : "overflow-y-auto pb-4"}`}>
-        <div className={messagepanel ? "h-1/2 overflow-y-auto pb-4 min-h-0" : ""}>
+      <div className={`flex-1 ${messagepanel ? "flex flex-col overflow-hidden min-h-0" : "overflow-y-auto pb-4"}`}>
+        <div className={messagepanel ? "flex-1 overflow-y-auto pb-4 min-h-0" : ""}>
         {/* Status */}
         <div className="px-6 mb-4 text-center">
           <h3 className="text-xl md:text-2xl font-semibold">
@@ -248,7 +248,7 @@ export const Lookingfordriver = (props) => {
         </div>
 
         {messagepanel && (
-          <div ref={messageref} className="h-1/2 border-t min-h-0 overflow-hidden">
+          <div ref={messageref} className="flex-1 border-t min-h-0 overflow-hidden">
             <Sendmessage roomid={roomid} mode="panel" />
           </div>
         )}

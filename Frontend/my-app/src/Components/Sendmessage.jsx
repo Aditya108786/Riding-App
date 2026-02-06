@@ -42,7 +42,7 @@ export const Sendmessage = ({ roomid, mode = "fixed" }) => {
   return (
     <div
       className={`bg-white border-t shadow-xl rounded-t-2xl ${
-        isPanel ? "w-full h-full flex flex-col" : "fixed bottom-0 left-0 w-full"
+        isPanel ? "w-full h-full flex flex-col min-h-0" : "fixed bottom-0 left-0 w-full"
       }`}
     >
       {/* Header */}

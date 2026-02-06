@@ -217,10 +217,10 @@ const CaptainHome = () => {
       {riderequestconfirm && rideconfirmMinimized && (
         <button
           onClick={() => setrideconfirmMinimized(false)}
-          className="fixed right-4 bottom-4 z-50 bg-black text-white px-4 py-3 rounded-full shadow-lg pointer-events-auto flex items-center gap-2"
+          className="fixed left-1/2 -translate-x-1/2 bottom-4 z-50 bg-black text-white px-5 py-3 rounded-full shadow-lg pointer-events-auto flex items-center gap-3 w-[90%] max-w-lg"
         >
           <i className="ri-arrow-up-s-line text-xl"></i>
-          <span className="text-sm font-semibold">Confirm Ride</span>
+          <span className="text-sm font-semibold">Confirm Ride (tap to expand)</span>
         </button>
       )}
     </div>

@@ -62,6 +62,7 @@ export const Lookingfordriver = (props) => {
       }
 
       if (data?.ride?.status === "Accepted") {
+        setmessagepanel(true);
         const lng = data?.ride?.captain?.location?.lng ?? data?.ride?.captain?.location?.lon;
         const lat = data?.ride?.captain?.location?.ltd ?? data?.ride?.captain?.location?.lat;
         if (lat != null && lng != null) setlivelocation({ lat, lng });
@@ -93,6 +94,7 @@ export const Lookingfordriver = (props) => {
   useEffect(()=>{
        socket.on("start:chat" , (roomId)=>{
           setroomid(roomId)
+          setmessagepanel(true)
          socket.emit("start:chat-room", 
           roomId
          )

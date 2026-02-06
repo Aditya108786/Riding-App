@@ -58,6 +58,9 @@ const CaptainHome = () => {
     });
   }, [riderequestconfirm]);
 
+  useEffect(() => {
+    if (riderequestconfirm) setrideconfirmMinimized(false);
+  }, [riderequestconfirm]);
   
 
   useEffect(()=>{
@@ -190,16 +193,16 @@ const CaptainHome = () => {
               destinationaddress={destinationaddress} 
               setdeclineride={setdeclineride} 
               setriderequestconfirm={setriderequestconfirm} 
-              
-                
-               
-              
+              onConfirmOpen={() => {
+                setrideconfirmMinimized(false);
+                setriderequestconfirm(true);
+              }}
             />
           )}
         </div>
       </div>
 
-      <div ref={rideconfirmref} className={`fixed bottom-0 w-full z-50 h-screen translate-y-full ${rideconfirmMinimized ? "pointer-events-none" : ""}`} hidden={!riderequestconfirm || rideconfirmMinimized}>
+      <div ref={rideconfirmref} className={`fixed bottom-0 w-full z-50 h-screen ${rideconfirmMinimized ? "pointer-events-none" : ""}`} hidden={!riderequestconfirm || rideconfirmMinimized}>
         <div className="bg-white h-full shadow-2xl px-5 py-8 overflow-y-auto">
           {ridedata && (
             <Confirmridepopup 

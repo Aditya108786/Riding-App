@@ -99,7 +99,7 @@ const Confirmridepopup = (props) => {
           <div>
             <p className="font-medium">Pickup</p>
             <p className="text-sm text-gray-600">
-              {props.ridedata?.ride?.pickup?.[0]}
+              {props.pickupaddress || props.ridedata?.ride?.pickup?.[0] || "Loading pickup..."}
             </p>
           </div>
         </div>
@@ -109,7 +109,7 @@ const Confirmridepopup = (props) => {
           <div>
             <p className="font-medium">Drop</p>
             <p className="text-sm text-gray-600">
-              {props.ridedata?.ride?.destination?.[0]}
+              {props.destinationaddress || props.ridedata?.ride?.drop?.[0] || "Loading drop..."}
             </p>
           </div>
         </div>

@@ -210,6 +210,8 @@ const CaptainHome = () => {
               captain={captain} 
               setriderequestconfirm={setriderequestconfirm} 
               onMinimize={() => setrideconfirmMinimized(true)}
+              pickupaddress={pickupaddress}
+              destinationaddress={destinationaddress}
             />
           )}
         </div>

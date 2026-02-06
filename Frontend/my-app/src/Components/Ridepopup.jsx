@@ -36,7 +36,7 @@ export const Ridepopup = ({
       });
 
       
-      setriderequestconfirm(true);
+      setriderequestconfirm(false);
       setdeclineride(true);
     } catch (err) {
       alert("Failed to accept ride");

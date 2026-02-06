@@ -249,7 +249,7 @@ export const Lookingfordriver = (props) => {
 
         {messagepanel && (
           <div ref={messageref} className="flex-1 border-t min-h-0 overflow-hidden">
-            <Sendmessage roomid={roomid} mode="panel" />
+            <Sendmessage roomid={roomid} />
           </div>
         )}
       </div>

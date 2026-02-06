@@ -9,7 +9,7 @@ export const Ridepopup = ({
   destinationaddress,
   setdeclineride,
   setriderequestconfirm,
-  onConfirmOpen,
+ 
 }) => {
   const { socket , setroomid } = useContext(SocketContext);
   const [loading, setLoading] = useState(false);
@@ -35,7 +35,7 @@ export const Ridepopup = ({
         ride
       });
 
-      if (onConfirmOpen) onConfirmOpen();
+      
       setriderequestconfirm(true);
       setdeclineride(true);
     } catch (err) {

@@ -58,9 +58,7 @@ const CaptainHome = () => {
     });
   }, [riderequestconfirm]);
 
-  useEffect(() => {
-    if (riderequestconfirm) setrideconfirmMinimized(false);
-  }, [riderequestconfirm]);
+  
 
   useEffect(()=>{
      
@@ -192,10 +190,10 @@ const CaptainHome = () => {
               destinationaddress={destinationaddress} 
               setdeclineride={setdeclineride} 
               setriderequestconfirm={setriderequestconfirm} 
-              onConfirmOpen={() => {
-                setrideconfirmMinimized(false);
-                setriderequestconfirm(true);
-              }}
+              
+                
+               
+              
             />
           )}
         </div>

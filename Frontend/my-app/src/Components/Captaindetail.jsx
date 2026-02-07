@@ -7,8 +7,8 @@ const Captaindetails = (props) => {
   if (!captain) return null;
   console.log(captain)
 
-  const totalRides = captain?.stats?.totalRides ?? 0;
-  const totalEarnings = captain?.stats?.totalEarnings ?? 0;
+  const totalRides = captain?.Rides ?? captain?.stats?.totalRides ?? 0;
+  const totalEarnings = captain?.Revenue ?? captain?.stats?.totalEarnings ?? 0;
 
   return (
     <div className="h-full w-full flex flex-col justify-between">

@@ -1,6 +1,7 @@
 const { Error } = require('mongoose')
 const rideModel = require('../models/ride.model')
 const ridemodel = require('../models/ride.model')
+const captainModel = require('../models/captain.model')
 const mapservice = require('../services/map.service')
 
 
@@ -164,6 +165,13 @@ module.exports.Endride = async(rideId , captain)=>{
 
          if(!ride){
              throw new Error("Ride not found ")
+         }
+
+         if (ride.captain) {
+           await captainModel.updateOne(
+             { _id: ride.captain },
+             { $inc: { Rides: 1, Revenue: ride.fare } }
+           )
          }
 
          return ride

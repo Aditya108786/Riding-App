@@ -85,12 +85,15 @@ module.exports.getCaptainprofile = async(req,res,next)=>{
       ])
       const totalEarnings = earningsAgg?.[0]?.total || 0
 
+      await captainModel.updateOne(
+        { _id: captain._id },
+        { $set: { Rides: totalRides, Revenue: totalEarnings } }
+      )
+
       res.status(200).json({
         ...captain.toObject(),
-        stats: {
-          totalRides,
-          totalEarnings
-        }
+        Rides: totalRides,
+        Revenue: totalEarnings
       })
     } catch (err) {
       res.status(200).json(captain)

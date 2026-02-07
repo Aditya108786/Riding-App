@@ -27,6 +27,7 @@ export const CaptainContext = ({children}) =>{
                       if(res.status === 200){
                         setcaptaindata(res.data)
                       }
+                      console.log(res.data)
                }
 
                fetchcaptain()

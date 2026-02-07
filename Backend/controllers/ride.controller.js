@@ -135,6 +135,9 @@ module.exports.ConfirmRide = async (req, res) => {
 
   } catch (error) {
     console.error("❌ ConfirmRide error:", error);
+    if (error?.message === "Captain already on a ride") {
+      return res.status(409).json({ message: error.message });
+    }
     return res.status(500).json({
       message: error.message || "Failed to confirm ride"
     });

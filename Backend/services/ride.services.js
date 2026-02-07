@@ -156,9 +156,10 @@ module.exports.Endride = async(rideId , captain)=>{
              _id:rideId,
              status:"ongoing"
          }, {
-              status:"completed"
+              status:"Completed"
          },{
-          new:true
+          new:true,
+          runValidators:true
          }).populate("user")
 
          if(!ride){

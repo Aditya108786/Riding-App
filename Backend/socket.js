@@ -1,7 +1,4 @@
 
-
-
-
 const socketIO = require('socket.io')
 const {connectRedis , getRedis} = require("./config/Redis")
 const {createAdapter} = require("@socket.io/redis-adapter")

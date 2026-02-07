@@ -38,7 +38,7 @@ export const Sendmessage = ({ roomid }) => {
   };
 
   return (
-    <div className="fixed inset-0 z-80 w-full h-50 flex flex-col">
+    <div className="fixed inset-0 z-80 w-full h-30 flex flex-col">
       {!isMinimized ? (
         <div className="w-full h-full bg-white/95 border-t shadow-xl rounded-t-2xl flex flex-col">
           {/* Header */}

@@ -112,8 +112,8 @@ const CaptainRiding = () => {
     return null;
   };
 
-  const passengerName = currentRide?.ridewithuser?.user?.fullname?.firstname || "Passenger";
-  const fare = currentRide?.ridewithuser?.fare || "--";
+  const passengerName = currentRide?.user?.fullname?.firstname || "Passenger";
+  const fare = currentRide?.fare || "--";
 
   return (
     <div className="h-screen w-full bg-gray-50 flex flex-col relative overflow-hidden text-gray-800">
@@ -136,10 +136,10 @@ const CaptainRiding = () => {
         {/* Row 1: Passenger & Fare */}
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <img src={currentRide?.ridewithuser?.user?.profilePicture || "https://randomuser.me/api/portraits/men/45.jpg"} className="w-10 h-10 rounded-full border" alt="rider" />
+            <img src={currentRide?.user?.profilePicture || "https://randomuser.me/api/portraits/men/45.jpg"} className="w-10 h-10 rounded-full border" alt="rider" />
             <div>
               <h3 className="font-bold text-sm leading-tight">{passengerName}</h3>
-              <p className="text-[10px] text-gray-500">{currentRide?.ridewithuser?.user?.phone || "No contact"}</p>
+              <p className="text-[10px] text-gray-500">{currentRide?.user?.phone || "No contact"}</p>
             </div>
           </div>
           <div className="text-right">
@@ -162,7 +162,7 @@ const CaptainRiding = () => {
 
         {/* Row 3: Actions */}
         <div className="flex gap-2">
-          <button onClick={() => window.open(`tel:${currentRide?.ridewithuser?.user?.phone || ""}`)} className="flex-1 bg-gray-100 py-2 rounded-lg text-xs font-bold active:bg-gray-200">
+          <button onClick={() => window.open(`tel:${currentRide?.user?.phone || ""}`)} className="flex-1 bg-gray-100 py-2 rounded-lg text-xs font-bold active:bg-gray-200">
             <i className="ri-phone-fill mr-1"></i> Call
           </button>
           <button onClick={() => setfinishride(true)} className="flex-[2] bg-black text-white py-2 rounded-lg text-xs font-bold shadow-lg">

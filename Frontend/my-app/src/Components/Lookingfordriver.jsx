@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from "react";
+﻿import React, { useContext, useEffect, useState } from "react";
 import axios from "axios";
 import { SocketContext } from "../context/socketcontext";
 import LiveMap from "./LiveMap";
@@ -148,47 +148,42 @@ export const Lookingfordriver = (props) => {
   
 
   return (
-    <div className="w-full h-full flex flex-col max-h-[90vh] md:max-h-screen">
-      {/* Drag handle/header */}
-      <div className="py-2 px-4 flex items-center justify-between sticky top-0 bg-white z-10">
-        <div className="w-12 mx-auto h-1.5 rounded-full bg-gray-300"></div>
-        <button
-          onClick={() => (props?.onMinimize ? props.onMinimize() : props.setvehiclefound(false))}
-          className="text-gray-600 absolute right-4"
-          aria-label="Minimize panel"
-        >
-          <i className="ri-close-line text-2xl"></i>
-        </button>
+    <div className="w-full h-screen bg-white rounded-t-3xl p-5 shadow-lg relative flex flex-col">
+      {/* Close Button */}
+      <h5
+        onClick={() => (props?.onMinimize ? props.onMinimize() : props.setvehiclefound(false))}
+        className="absolute top-3 w-full text-center"
+      >
+        <i className="ri-arrow-down-wide-line text-3xl text-gray-500"></i>
+      </h5>
+
+      {/* Header */}
+      <div className="text-center mt-8 mb-5">
+        <h3 className="text-2xl font-semibold">
+          {ridestatus?.ride?.status !== "Accepted" ? "Looking for a driver..." : "Driver Found!"}
+        </h3>
+        <p className="text-gray-500 text-sm">
+          {ridestatus?.message || (ridestatus?.ride?.status === "Accepted" ? "Driver is on the way" : "Searching nearby captains")}
+        </p>
       </div>
 
-      <div className={`flex-1 ${messagepanel ? "flex flex-col overflow-hidden min-h-0" : "overflow-y-auto pb-4"}`}>
+      <div className={`flex-1 ${messagepanel ? "flex flex-col min-h-0" : "overflow-y-auto pb-4"}`}>
         <div className={messagepanel ? "flex-1 overflow-y-auto pb-4 min-h-0" : ""}>
-        {/* Status */}
-        <div className="px-6 mb-4 text-center">
-          <h3 className="text-xl md:text-2xl font-semibold">
-            {ridestatus?.ride?.status !== "Accepted" ? "Looking for a driver..." : "Driver Found!"}
-          </h3>
-          <p className="text-sm text-gray-500 mt-1">
-            {ridestatus?.message || (ridestatus?.ride?.status === "Accepted" ? "Driver is on the way" : "Searching nearby captains")}
-          </p>
-        </div>
-
-        {/* Map area */}
-        <div className="px-4 md:px-6">
-          <div className="h-48 sm:h-56 md:h-64 w-full rounded-2xl overflow-hidden shadow-sm border border-gray-100">
-            {livelocation ? (
-              <LiveMap lat={Number(livelocation.lat)} lng={Number(livelocation.lng)} icon={customCaptainIcon} showCircle={true} />
-            ) : (
-              <div className="flex flex-col items-center justify-center h-full bg-gray-50 text-gray-400 p-4 text-center">
-                 <i className="ri-map-2-line text-3xl mb-2"></i>
-                 <span className="text-xs md:text-sm">Map will appear once a driver is assigned</span>
-              </div>
-            )}
+          {/* Map area */}
+          <div className="mb-4">
+            <div className="h-48 sm:h-56 md:h-64 w-full rounded-2xl overflow-hidden shadow-sm border border-gray-100">
+              {livelocation ? (
+                <LiveMap lat={Number(livelocation.lat)} lng={Number(livelocation.lng)} icon={customCaptainIcon} showCircle={true} />
+              ) : (
+                <div className="flex flex-col items-center justify-center h-full bg-gray-50 text-gray-400 p-4 text-center">
+                  <i className="ri-map-2-line text-3xl mb-2"></i>
+                  <span className="text-xs md:text-sm">Map will appear once a driver is assigned</span>
+                </div>
+              )}
+            </div>
           </div>
-        </div>
 
-        {/* Info Card */}
-        <div className="mt-4 px-4 md:px-6">
+          {/* Info Card */}
           <div className="bg-white rounded-2xl p-4 md:p-5 border border-gray-100 shadow-sm">
             <div className="flex items-start gap-4">
               <img 
@@ -203,7 +198,7 @@ export const Lookingfordriver = (props) => {
                       {ridestatus?.ride?.captain?.fullname?.firstname || "Driver"}
                     </h4>
                     <p className="text-xs md:text-sm text-gray-500 truncate">
-                      {ridestatus?.ride?.captain?.vehicle?.name || "Vehicle"} • {ridestatus?.ride?.captain?.vehicle?.plate || "-"}
+                      {ridestatus?.ride?.captain?.vehicle?.name || "Vehicle"} â€¢ {ridestatus?.ride?.captain?.vehicle?.plate || "-"}
                     </p>
                   </div>
                   <div className="flex flex-col items-end">
@@ -244,7 +239,6 @@ export const Lookingfordriver = (props) => {
               </button>
             </div>
           </div>
-        </div>
         </div>
 
         {messagepanel && (

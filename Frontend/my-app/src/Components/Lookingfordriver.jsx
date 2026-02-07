@@ -168,7 +168,7 @@ export const Lookingfordriver = (props) => {
       </div>
 
       <div className={`flex-1 ${messagepanel ? "flex flex-col min-h-0" : "overflow-y-auto pb-4"}`}>
-        <div className={messagepanel ? "flex-1 overflow-y-auto pb-4 min-h-0" : ""}>
+        <div className={messagepanel ? "flex-[3] overflow-y-auto pb-4 min-h-0" : ""}>
           {/* Map area */}
           <div className="mb-4">
             <div className="h-48 sm:h-56 md:h-64 w-full rounded-2xl overflow-hidden shadow-sm border border-gray-100">
@@ -242,7 +242,7 @@ export const Lookingfordriver = (props) => {
         </div>
 
         {messagepanel && (
-          <div ref={messageref} className="flex-1 border-t min-h-0 overflow-hidden">
+          <div ref={messageref} className="flex-[2] border-t min-h-0 overflow-hidden">
             <Sendmessage roomid={roomid} />
           </div>
         )}

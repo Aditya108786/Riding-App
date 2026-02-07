@@ -34,11 +34,11 @@ module.exports.registerCaptain = async function(req,res,next){
        })
 
        const token = await captain.generateAuthtoken()
-       res.cookie('token' , token , {
+       res.cookie('captaintoken' , token , {
             sameSite:'None',
             httpOnly:true,
             secure:true
-       }).status(201).json({captain})
+       }).status(201).json({token, captain})
 }
 
 module.exports.captainLogin = async(req,res,next)=>{

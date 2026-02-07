@@ -5,6 +5,7 @@ const Captaindetails = (props) => {
   const { captain } = useContext(CaptaindataContext);
 
   if (!captain) return null;
+  console.log(captain)
 
   const totalRides = captain?.stats?.totalRides ?? 0;
   const totalEarnings = captain?.stats?.totalEarnings ?? 0;

@@ -38,7 +38,7 @@ export const Sendmessage = ({ roomid }) => {
   };
 
   return (
-    <div className="fixed inset-0 z-80 w-full h-30 flex flex-col">
+    <div className="w-full h-full flex flex-col">
       {!isMinimized ? (
         <div className="w-full h-full bg-white/95 border-t shadow-xl rounded-t-2xl flex flex-col">
           {/* Header */}
@@ -97,14 +97,16 @@ export const Sendmessage = ({ roomid }) => {
           </form>
         </div>
       ) : (
-        <button
-          onClick={() => setIsMinimized(false)}
-          className="fixed right-4 bottom-4 z-50 bg-black text-white px-4 py-2 rounded-full shadow-lg flex items-center gap-2"
-          aria-label="Maximize chat"
-        >
-          <i className="ri-arrow-up-s-line text-xl"></i>
-          <span className="text-sm font-semibold">Chat</span>
-        </button>
+        <div className="relative w-full h-full">
+          <button
+            onClick={() => setIsMinimized(false)}
+            className="absolute right-4 bottom-4 bg-black text-white px-4 py-2 rounded-full shadow-lg flex items-center gap-2"
+            aria-label="Maximize chat"
+          >
+            <i className="ri-arrow-up-s-line text-xl"></i>
+            <span className="text-sm font-semibold">Chat</span>
+          </button>
+        </div>
       )}
     </div>
   );

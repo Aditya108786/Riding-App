@@ -4,52 +4,70 @@ import "remixicon/fonts/remixicon.css";
 import { SocketContext } from "../context/socketcontext";
 
 export const Ridepopup = ({
-  ridedata,
-  pickupaddress,
-  destinationaddress,
+  rideRequests = [],
+  selectedRideId,
+  onSelectRide,
   setdeclineride,
   setriderequestconfirm,
-  onConfirmOpen,
+  onRideAccepted,
 }) => {
-  const { socket , setroomid } = useContext(SocketContext);
+  const { socket, setroomid } = useContext(SocketContext);
   const [loading, setLoading] = useState(false);
 
-  const user = ridedata?.ride?.user;
+  const selectedRequest =
+    rideRequests.find((item) => item.ride?._id === selectedRideId) || rideRequests[0];
+  const user = selectedRequest?.ride?.user;
 
   const sendridetouser = async () => {
+    if (!selectedRequest?.ride?._id) return;
+
     try {
       setLoading(true);
-      if (onConfirmOpen) onConfirmOpen();
-      setriderequestconfirm(true);
-      setdeclineride(true);
-
-    const res =   await axios.post(
-       `${import.meta.env.VITE_BASE_URL}/ride/confirmride`,
-        { rideId: ridedata?.ride?._id },
+      const res = await axios.post(
+        `${import.meta.env.VITE_BASE_URL}/ride/confirmride`,
+        { rideId: selectedRequest.ride._id },
         { withCredentials: true }
       );
 
-      
-          setroomid(res.data.roomId)
-          const ride = res.data.ride
-          socket.emit("start:chat-room",  res.data.roomId)
+      setroomid(res.data.roomId);
+      const ride = res.data.ride;
+      socket.emit("start:chat-room", res.data.roomId);
       socket?.emit("ride-accepted", {
-        rideId: ridedata.ride._id,
-        ride
+        rideId: selectedRequest.ride._id,
+        ride,
       });
 
+      onRideAccepted?.({
+        ride,
+        roomId: res.data.roomId,
+        selectedRequest,
+      });
     } catch (err) {
-      setriderequestconfirm(true);
-      setdeclineride(false);
-      alert("Failed to accept ride");
+      const message = err?.response?.data?.message || "Failed to accept ride";
+      if (message.toLowerCase().includes("already")) {
+        onRideAccepted?.({
+          ride: null,
+          roomId: null,
+          selectedRequest,
+          rejected: true,
+        });
+      }
+      alert(message);
     } finally {
       setLoading(false);
     }
   };
 
+  if (!rideRequests.length) {
+    return (
+      <div className="w-full bg-white py-8">
+        <p className="text-center text-gray-500 font-medium">No pending ride requests</p>
+      </div>
+    );
+  }
+
   return (
     <div className="w-full bg-white relative">
-      {/* Pull Tab for GSAP Feel */}
       <button
         onClick={() => setdeclineride(true)}
         className="absolute left-1/2 -translate-x-1/2 -top-4"
@@ -57,11 +75,34 @@ export const Ridepopup = ({
         <i className="ri-arrow-down-wide-line text-3xl text-gray-300"></i>
       </button>
 
-      <h3 className="text-xl font-bold text-gray-800 mb-5">
-        New Ride Request
-      </h3>
+      <h3 className="text-xl font-bold text-gray-800 mb-5">Ride Requests</h3>
 
-      {/* Passenger Header */}
+      <div className="mb-5">
+        <p className="text-xs text-gray-500 mb-2 font-semibold uppercase tracking-wide">
+          Choose a request ({rideRequests.length})
+        </p>
+        <div className="flex gap-3 overflow-x-auto pb-2">
+          {rideRequests.map((req) => {
+            const active = req.ride?._id === selectedRequest?.ride?._id;
+            return (
+              <button
+                key={req.ride?._id}
+                onClick={() => onSelectRide?.(req.ride?._id)}
+                className={`min-w-[190px] rounded-2xl border p-3 text-left transition-all ${
+                  active ? "border-black bg-gray-50 shadow-md" : "border-gray-200 bg-white"
+                }`}
+              >
+                <p className="text-sm font-bold text-gray-900">
+                  {req.ride?.user?.fullname?.firstname || "Passenger"}
+                </p>
+                <p className="text-xs text-gray-500 mt-1 line-clamp-1">{req.pickupaddress || "Pickup loading..."}</p>
+                <p className="text-base font-bold text-gray-900 mt-2">Rs {req.ride?.fare || "--"}</p>
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
       <div className="flex items-center justify-between bg-gray-50 p-4 rounded-2xl mb-5">
         <div className="flex items-center gap-3">
           <img
@@ -70,19 +111,16 @@ export const Ridepopup = ({
             alt="user"
           />
           <div>
-            <h4 className="font-bold text-gray-800">
-              {user?.fullname?.firstname || "Passenger"}
-            </h4>
-            <p className="text-xs text-gray-500 font-medium">5.0 ★ • Cash</p>
+            <h4 className="font-bold text-gray-800">{user?.fullname?.firstname || "Passenger"}</h4>
+            <p className="text-xs text-gray-500 font-medium">5.0 star | Cash</p>
           </div>
         </div>
         <div className="text-right">
-          <h5 className="text-lg font-bold text-gray-900">₹{ridedata?.ride?.fare}</h5>
+          <h5 className="text-lg font-bold text-gray-900">Rs {selectedRequest?.ride?.fare}</h5>
           <p className="text-[10px] text-gray-400 font-bold uppercase">Estimated Fare</p>
         </div>
       </div>
 
-      {/* Address Details */}
       <div className="space-y-4 mb-6 px-1">
         <div className="flex items-start gap-4">
           <div className="flex flex-col items-center mt-1">
@@ -92,7 +130,7 @@ export const Ridepopup = ({
           <div className="flex-1 border-b border-gray-50 pb-2">
             <p className="text-[10px] text-gray-400 font-bold uppercase">Pickup</p>
             <p className="text-sm text-gray-700 font-medium line-clamp-1">
-              {pickupaddress || "Loading pickup..."}
+              {selectedRequest?.pickupaddress || "Loading pickup..."}
             </p>
           </div>
         </div>
@@ -102,13 +140,12 @@ export const Ridepopup = ({
           <div className="flex-1">
             <p className="text-[10px] text-gray-400 font-bold uppercase">Destination</p>
             <p className="text-sm text-gray-700 font-medium line-clamp-1">
-              {destinationaddress || "Loading destination..."}
+              {selectedRequest?.destinationaddress || "Loading destination..."}
             </p>
           </div>
         </div>
       </div>
 
-      {/* Action Buttons */}
       <div className="flex flex-col gap-3">
         <button
           disabled={loading}
@@ -117,20 +154,25 @@ export const Ridepopup = ({
             loading ? "bg-gray-400" : "bg-green-600 hover:bg-green-700"
           }`}
         >
-          {loading ? (
-            "Accepting..."
-          ) : (
-            <>
-              Accept Ride
-            </>
-          )}
+          {loading ? "Accepting..." : "Accept Selected Ride"}
         </button>
 
         <button
-          onClick={() => setdeclineride(true)}
+          onClick={() => {
+            if (selectedRequest?.ride?._id) {
+              onRideAccepted?.({
+                ride: null,
+                roomId: null,
+                selectedRequest,
+                rejected: true,
+              });
+            }
+            setriderequestconfirm(false);
+            setdeclineride(rideRequests.length <= 1);
+          }}
           className="w-full py-4 rounded-xl bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold transition-all active:scale-95"
         >
-          Ignore
+          Skip Selected
         </button>
       </div>
     </div>

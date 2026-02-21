@@ -2,52 +2,58 @@ import React, { useState, useContext } from 'react'
 import { UserdataContext } from '../context/usercontext.jsx'
 import axios from 'axios'
 import { Link, useNavigate } from 'react-router-dom'
-import { ArrowLeft, User, Mail, Lock, ChevronRight } from 'lucide-react'
+import { ArrowLeft, Phone, Mail, Lock, ChevronRight, Eye, EyeOff } from 'lucide-react'
 
 const Usersignup = () => {
     const [firstname, setFirstname] = useState("");
-    const [Lastname, setLastname] = useState("");
+    const [lastname, setLastname] = useState("");
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [phone, setPhone] = useState("");
+    const [showPassword, setShowPassword] = useState(false);
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    const [error, setError] = useState("");
 
     const { setuserdata } = useContext(UserdataContext)
     const navigate = useNavigate();
 
     const handlesubmit = async (e) => {
         e.preventDefault();
+        setError("");
 
         const newuser = {
             fullname: {
-                firstname: firstname,
-                lastname: Lastname // Note: Matching your backend key lowercase 'lastname'
+                firstname: firstname.trim(),
+                lastname: lastname.trim()
             },
-            email: email,
-            phone:phone,
+            email: email.trim(),
+            phone: phone.trim(),
             password: password
         }
 
+        setIsSubmitting(true);
         try {
             const res = await axios.post(`${import.meta.env.VITE_BASE_URL}/user/register`, newuser)
             if (res.status === 201) {
                 const { user } = res.data
                 setuserdata(user)
-                //localStorage.setItem('token', token)
+                setEmail("")
+                setPassword("")
+                setPhone("")
+                setFirstname("")
+                setLastname("")
                 navigate('/Userhome')
             }
         } catch (err) {
             console.error("Registration failed", err)
+            setError(err?.response?.data?.message || err?.response?.data?.errors?.[0]?.msg || "Registration failed. Please check your details.");
+        } finally {
+            setIsSubmitting(false);
         }
-
-        // Reset fields
-        setEmail("")
-        setPassword("")
-        setFirstname("")
-        setLastname("")
     }
 
     return (
-        <div className='min-h-screen bg-white flex flex-col font-sans'>
+        <div className='min-h-screen bg-gradient-to-b from-white to-slate-50 flex flex-col font-sans'>
             {/* Top Navigation */}
             <div className='p-6 flex items-center justify-between'>
                 <button onClick={() => navigate(-1)} className='p-2 -ml-2 hover:bg-slate-100 rounded-full transition-colors'>
@@ -57,8 +63,8 @@ const Usersignup = () => {
                 
             </div>
 
-            <div className='flex-1 px-8 pt-4 pb-10 flex flex-col justify-between'>
-                <div>
+            <div className='flex-1 px-5 sm:px-8 pt-4 pb-10 flex flex-col justify-between'>
+                <div className='w-full max-w-md mx-auto'>
                     <header className='mb-10'>
                         <h1 className='text-3xl font-bold text-slate-900'>Create Account</h1>
                         <p className='text-slate-500 mt-2 font-medium'>Sign up to start your journey with us.</p>
@@ -85,7 +91,7 @@ const Usersignup = () => {
                                     className='bg-slate-100 w-full rounded-2xl px-4 py-4 border-2 border-transparent focus:border-black focus:bg-white transition-all outline-none font-medium'
                                     type="text"
                                     placeholder='e.g. Doe'
-                                    value={Lastname}
+                                    value={lastname}
                                     onChange={(e) => setLastname(e.target.value)}
                                 />
                             </div>
@@ -95,11 +101,11 @@ const Usersignup = () => {
                             <label className='text-xs font-bold text-slate-400 uppercase ml-1'>Phone</label>
                             <div className='relative'>
                                 
-                                <User className='absolute left-4 top-1/2 -translate-y-1/2 text-slate-400' size={20} />
+                                <Phone className='absolute left-4 top-1/2 -translate-y-1/2 text-slate-400' size={20} />
                                 <input
                                     required
                                     className='bg-slate-100 w-full rounded-2xl pl-12 pr-4 py-4 border-2 border-transparent focus:border-black focus:bg-white transition-all outline-none font-medium'
-                                    type="text"
+                                    type="tel"
                                     placeholder='910xxxxxxx'
                                     value={phone}
                                     onChange={(e) => setPhone(e.target.value)}
@@ -130,19 +136,33 @@ const Usersignup = () => {
                                 <Lock className='absolute left-4 top-1/2 -translate-y-1/2 text-slate-400' size={20} />
                                 <input
                                     required
-                                    className='bg-slate-100 w-full rounded-2xl pl-12 pr-4 py-4 border-2 border-transparent focus:border-black focus:bg-white transition-all outline-none font-medium'
-                                    type="password"
-                                    placeholder='Minimum 8 characters'
+                                    className='bg-slate-100 w-full rounded-2xl pl-12 pr-12 py-4 border-2 border-transparent focus:border-black focus:bg-white transition-all outline-none font-medium'
+                                    type={showPassword ? "text" : "password"}
+                                    placeholder='Minimum 6 characters'
                                     value={password}
                                     onChange={(e) => setPassword(e.target.value)}
                                 />
+                                <button
+                                    type="button"
+                                    className='absolute right-3 top-1/2 -translate-y-1/2 p-2 text-slate-500 hover:text-slate-700'
+                                    onClick={() => setShowPassword((prev) => !prev)}
+                                >
+                                    {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                                </button>
                             </div>
                         </div>
 
+                        {error && (
+                            <p className='text-sm text-red-600 bg-red-50 border border-red-100 px-3 py-2 rounded-xl'>
+                                {error}
+                            </p>
+                        )}
+
                         <button
-                            className='bg-black text-white font-bold mt-4 py-4 rounded-2xl w-full flex items-center justify-center gap-2 active:scale-[0.98] transition-transform shadow-xl shadow-slate-200'
+                            disabled={isSubmitting}
+                            className='bg-black disabled:bg-slate-400 text-white font-bold mt-4 py-4 rounded-2xl w-full flex items-center justify-center gap-2 active:scale-[0.98] transition-transform shadow-xl shadow-slate-200'
                         >
-                            Create Account
+                            {isSubmitting ? "Creating..." : "Create Account"}
                             <ChevronRight size={20} />
                         </button>
                     </form>
@@ -152,7 +172,7 @@ const Usersignup = () => {
                     </p>
                 </div>
 
-                <div className='mt-auto'>
+                <div className='mt-auto max-w-md mx-auto w-full'>
                     <p className='text-[11px] leading-tight text-slate-400 text-center'>
                         By signing up, you agree to our <span className='underline'>Terms of Service</span> and <span className='underline'>Privacy Policy</span>. This site is protected by reCAPTCHA.
                     </p>

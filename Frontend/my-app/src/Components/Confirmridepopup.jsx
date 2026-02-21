@@ -135,7 +135,7 @@ const Confirmridepopup = (props) => {
 
         <button
           type="button"
-          onClick={() => props.setriderequestconfirm(false)}
+          onClick={() => (props?.onCancel ? props.onCancel() : props.setriderequestconfirm(false))}
           className="w-full bg-gray-200 text-gray-800 py-3 rounded-xl font-semibold"
         >
           Cancel

@@ -7,12 +7,11 @@ import { CaptaindataContext } from "../context/captaincontext";
 import axios from "axios";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
-import LiveMap from "../Components/LiveMap"; // Ensure this is imported
+import LiveMap from "../Components/LiveMap";
 import L from "leaflet";
-import markerIcon2x from 'leaflet/dist/images/marker-icon-2x.png';
-import markerShadow from 'leaflet/dist/images/marker-shadow.png';
+import markerIcon2x from "leaflet/dist/images/marker-icon-2x.png";
+import markerShadow from "leaflet/dist/images/marker-shadow.png";
 
-// Define the Icon outside the component
 const customCaptainIcon = new L.Icon({
   iconUrl: markerIcon2x,
   iconSize: [40, 40],
@@ -26,18 +25,26 @@ const CaptainHome = () => {
   const [Declineride, setdeclineride] = useState(true);
   const [riderequestconfirm, setriderequestconfirm] = useState(false);
   const [rideconfirmMinimized, setrideconfirmMinimized] = useState(false);
+
   const [ridedata, setridedata] = useState(null);
   const [pickupaddress, setpickupaddress] = useState("");
   const [destinationaddress, setdestinationaddress] = useState("");
-  const [livelocation , setLivelocation] = useState(null)
+
+  const [rideRequests, setRideRequests] = useState([]);
+  const [selectedRideId, setSelectedRideId] = useState(null);
+
+  const [livelocation, setLivelocation] = useState(null);
   const popupref = useRef(null);
   const rideconfirmref = useRef(null);
 
   const { socket } = useContext(SocketContext);
   const { captain } = useContext(CaptaindataContext);
-  
-  console.log(captain)
-  console.log(ridedata)
+
+  useEffect(() => {
+    if (!selectedRideId && rideRequests.length) {
+      setSelectedRideId(rideRequests[0].ride?._id || null);
+    }
+  }, [rideRequests, selectedRideId]);
 
   useGSAP(() => {
     if (!popupref.current) return;
@@ -61,116 +68,156 @@ const CaptainHome = () => {
   useEffect(() => {
     if (riderequestconfirm) setrideconfirmMinimized(false);
   }, [riderequestconfirm]);
-  
 
-  useEffect(()=>{
-     
-    if(!captain || !socket){
-         return
-    }
-      
-    const watchId = navigator.geolocation.watchPosition((position)=>{
-                  
-          
-          
-              setLivelocation({
-                lat:position.coords.latitude,
-                lng:position.coords.longitude
-              })
-    },
-    (error)=>{
-       console.error("Location error" , error)
-    },
-
-    {
-        enableHighAccuracy: true,
-        maximumAge: 0,
-        timeout: 5000
-      }
-  
-  
-  )
-
-  return ()=>{
-     navigator.geolocation.clearWatch(watchId)
-  }
-
-
-  },[captain,socket])
- console.log(livelocation)
-
- useEffect(()=>{
-       if(!socket || !livelocation){
-         return;
-       }
-
-       socket.emit("captain-location-update" , {
-              captainId:captain._id,
-             lat:livelocation.lat,
-             lng:livelocation.lng
-       })
- },[socket,livelocation])
-
-  useEffect(()=>{
-    if(!socket || !captain?._id || !livelocation || !riderequestconfirm || !ridedata?.ride?._id){
+  useEffect(() => {
+    if (!captain || !socket) {
       return;
     }
 
-    socket.emit("captain-location" , {
-      captainId:captain._id,
-      rideId:ridedata.ride._id,
-      lat:livelocation.lat,
-      lng:livelocation.lng
-    })
-  },[livelocation , captain?._id , socket, riderequestconfirm, ridedata?.ride?._id])
+    const watchId = navigator.geolocation.watchPosition(
+      (position) => {
+        setLivelocation({
+          lat: position.coords.latitude,
+          lng: position.coords.longitude,
+        });
+      },
+      (error) => {
+        console.error("Location error", error);
+      },
+      {
+        enableHighAccuracy: true,
+        maximumAge: 0,
+        timeout: 5000,
+      }
+    );
 
+    return () => {
+      navigator.geolocation.clearWatch(watchId);
+    };
+  }, [captain, socket]);
 
+  useEffect(() => {
+    if (!socket || !livelocation || !captain?._id) {
+      return;
+    }
+
+    socket.emit("captain-location-update", {
+      captainId: captain._id,
+      lat: livelocation.lat,
+      lng: livelocation.lng,
+    });
+  }, [socket, livelocation, captain?._id]);
+
+  useEffect(() => {
+    if (!socket || !captain?._id || !livelocation || !riderequestconfirm || !ridedata?.ride?._id) {
+      return;
+    }
+
+    socket.emit("captain-location", {
+      captainId: captain._id,
+      rideId: ridedata.ride._id,
+      lat: livelocation.lat,
+      lng: livelocation.lng,
+    });
+  }, [livelocation, captain?._id, socket, riderequestconfirm, ridedata?.ride?._id]);
 
   useEffect(() => {
     if (!socket || !captain?._id) return;
     socket.emit("join", { userId: captain._id, userType: "captain" });
 
     const newridehandler = async (data) => {
-      //console.log("hey hey",data)
       const [pickupLng, pickupLat] = data.ride.pickup;
-
       const [destLng, destLat] = data.ride.destination;
+
       try {
         const [pickupAddr, destAddr] = await Promise.all([
-          axios.post(`${import.meta.env.VITE_BASE_URL}/maps/getfulladdress`, { lat: pickupLat, lng: pickupLng }, { withCredentials: true }).then(res => res.data.address),
-          axios.post(`${import.meta.env.VITE_BASE_URL}/maps/getfulladdress`, { lat: destLat, lng: destLng }, { withCredentials: true }).then(res => res.data.address),
+          axios
+            .post(
+              `${import.meta.env.VITE_BASE_URL}/maps/getfulladdress`,
+              { lat: pickupLat, lng: pickupLng },
+              { withCredentials: true }
+            )
+            .then((res) => res.data.address),
+          axios
+            .post(
+              `${import.meta.env.VITE_BASE_URL}/maps/getfulladdress`,
+              { lat: destLat, lng: destLng },
+              { withCredentials: true }
+            )
+            .then((res) => res.data.address),
         ]);
-        setpickupaddress(pickupAddr);
-        setdestinationaddress(destAddr);
-        setridedata(data);
-        console.log(data)
+
+        const requestItem = {
+          ride: data.ride,
+          pickupaddress: pickupAddr,
+          destinationaddress: destAddr,
+          receivedAt: Date.now(),
+        };
+
+        setRideRequests((prev) => {
+          const exists = prev.some((item) => item.ride?._id === data.ride?._id);
+          if (exists) return prev;
+          return [requestItem, ...prev].slice(0, 10);
+        });
+        setSelectedRideId((prev) => prev || data.ride?._id);
         setdeclineride(false);
-      } catch (err) { console.error(err); }
+      } catch (err) {
+        console.error(err);
+      }
     };
 
     socket.on("newride", newridehandler);
     return () => socket.off("newride", newridehandler);
   }, [socket, captain?._id]);
 
+  const handleRideAccepted = ({ ride, selectedRequest, rejected }) => {
+    const rideId = selectedRequest?.ride?._id;
+    if (!rideId) return;
+
+    setRideRequests((prev) => {
+      const remaining = prev.filter((item) => item.ride?._id !== rideId);
+      setSelectedRideId(remaining[0]?.ride?._id || null);
+      if (!remaining.length && !ride) {
+        setdeclineride(true);
+      }
+      return remaining;
+    });
+
+    if (rejected || !ride) {
+      return;
+    }
+
+    setridedata({ ride });
+    setpickupaddress(selectedRequest.pickupaddress || "");
+    setdestinationaddress(selectedRequest.destinationaddress || "");
+    setrideconfirmMinimized(false);
+    setriderequestconfirm(true);
+    setdeclineride(true);
+  };
+
+  const handleConfirmCancel = () => {
+    setriderequestconfirm(false);
+    if (rideRequests.length > 0) {
+      setdeclineride(false);
+    }
+  };
+
   return (
     <div className="h-screen w-full bg-white flex flex-col relative overflow-hidden">
-      
-      {/* 70% SECTION: ACTUAL LIVE MAP */}
       <div className="h-[70%] w-full relative z-0 bg-gray-100">
-        {livelocation? (
-          <LiveMap 
-            lat={Number(livelocation.lat)} 
-            lng={Number(livelocation.lng)} 
-            icon={customCaptainIcon} 
-            showCircle={true} 
+        {livelocation ? (
+          <LiveMap
+            lat={Number(livelocation.lat)}
+            lng={Number(livelocation.lng)}
+            icon={customCaptainIcon}
+            showCircle={true}
           />
         ) : (
           <div className="h-full w-full flex items-center justify-center text-gray-500">
             Fetching live location...
           </div>
         )}
-        
-        {/* Floating Logout */}
+
         <div className="absolute top-5 right-5 z-[1000]">
           <button className="h-10 w-10 bg-white flex items-center justify-center rounded-full shadow-lg border">
             <i className="ri-logout-box-r-line text-lg text-gray-700"></i>
@@ -178,38 +225,36 @@ const CaptainHome = () => {
         </div>
       </div>
 
-      {/* 30% SECTION: DETAILS */}
       <div className="h-[30%] w-full bg-white px-5 py-4 shadow-[0_-10px_20px_rgba(0,0,0,0.05)] z-10">
         <Captaindetails setdeclineride={setdeclineride} />
       </div>
 
-      {/* POPUPS (Keep existing code) */}
       <div ref={popupref} className="fixed bottom-0 w-full z-40 translate-y-full opacity-0">
         <div className="bg-white shadow-2xl px-5 py-8 rounded-t-3xl border-t">
-          {ridedata && (
-            <Ridepopup 
-              ridedata={ridedata} 
-              pickupaddress={pickupaddress} 
-              destinationaddress={destinationaddress} 
-              setdeclineride={setdeclineride} 
-              setriderequestconfirm={setriderequestconfirm} 
-              onConfirmOpen={() => {
-                setrideconfirmMinimized(false);
-                setriderequestconfirm(true);
-              }}
-            />
-          )}
+          <Ridepopup
+            rideRequests={rideRequests}
+            selectedRideId={selectedRideId}
+            onSelectRide={setSelectedRideId}
+            setdeclineride={setdeclineride}
+            setriderequestconfirm={setriderequestconfirm}
+            onRideAccepted={handleRideAccepted}
+          />
         </div>
       </div>
 
-      <div ref={rideconfirmref} className={`fixed bottom-0 w-full z-50 h-screen ${rideconfirmMinimized ? "pointer-events-none" : ""}`} hidden={!riderequestconfirm || rideconfirmMinimized}>
+      <div
+        ref={rideconfirmref}
+        className={`fixed bottom-0 w-full z-50 h-screen ${rideconfirmMinimized ? "pointer-events-none" : ""}`}
+        hidden={!riderequestconfirm || rideconfirmMinimized}
+      >
         <div className="bg-white h-full shadow-2xl px-5 py-8 overflow-y-auto">
           {ridedata && (
-            <Confirmridepopup 
-              ridedata={ridedata} 
-              captain={captain} 
-              setriderequestconfirm={setriderequestconfirm} 
+            <Confirmridepopup
+              ridedata={ridedata}
+              captain={captain}
+              setriderequestconfirm={setriderequestconfirm}
               onMinimize={() => setrideconfirmMinimized(true)}
+              onCancel={handleConfirmCancel}
               pickupaddress={pickupaddress}
               destinationaddress={destinationaddress}
             />

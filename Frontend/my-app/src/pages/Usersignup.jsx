@@ -9,6 +9,7 @@ const Usersignup = () => {
     const [Lastname, setLastname] = useState("");
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
+    const [phone, setPhone] = useState("");
 
     const { setuserdata } = useContext(UserdataContext)
     const navigate = useNavigate();
@@ -22,6 +23,7 @@ const Usersignup = () => {
                 lastname: Lastname // Note: Matching your backend key lowercase 'lastname'
             },
             email: email,
+            phone:phone,
             password: password
         }
 
@@ -85,6 +87,22 @@ const Usersignup = () => {
                                     placeholder='e.g. Doe'
                                     value={Lastname}
                                     onChange={(e) => setLastname(e.target.value)}
+                                />
+                            </div>
+                        </div>
+
+                         <div className='space-y-2'>
+                            <label className='text-xs font-bold text-slate-400 uppercase ml-1'>Phone</label>
+                            <div className='relative'>
+                                
+                                <User className='absolute left-4 top-1/2 -translate-y-1/2 text-slate-400' size={20} />
+                                <input
+                                    required
+                                    className='bg-slate-100 w-full rounded-2xl pl-12 pr-4 py-4 border-2 border-transparent focus:border-black focus:bg-white transition-all outline-none font-medium'
+                                    type="text"
+                                    placeholder='910xxxxxxx'
+                                    value={phone}
+                                    onChange={(e) => setPhone(e.target.value)}
                                 />
                             </div>
                         </div>

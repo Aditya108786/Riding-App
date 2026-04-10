@@ -3,7 +3,7 @@ const { createClient } = require("redis");
 let redis;
 
 async function connectRedis() {
-  // ✅ If already connected, reuse
+  
   if (redis) {
     return redis;
   }

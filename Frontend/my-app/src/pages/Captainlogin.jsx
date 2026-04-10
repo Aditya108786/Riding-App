@@ -4,6 +4,7 @@ import axios from "axios";
 import { useNavigate, Link } from "react-router-dom";
 import { Mail, Lock, ArrowLeft, Loader2, LayoutGrid } from "lucide-react";
 import ChangePasswordModal from "../Components/ChangePasswordModal.jsx";
+import { buildServiceUrl } from "../lib/serviceUrl";
 
 const Captainlogin = () => {
   const [email, setemail] = useState("");
@@ -20,7 +21,7 @@ const Captainlogin = () => {
 
     try {
       const response = await axios.post(
-        `${import.meta.env.VITE_BASE_URL}/captain/login`,
+        buildServiceUrl('/captain/login'),
         { email, password },
         { withCredentials: true }
       );

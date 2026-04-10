@@ -3,6 +3,7 @@ const express = require('express')
 const router = express.Router()
 const {body} = require('express-validator')
 const { registerUser,loginUser, reset_password } = require('../controllers/user.controller')
+const { requireInternalServiceKey } = require('../middlewares/internal.middleware')
 
 router.post('/register' , [
      body('email').isEmail().withMessage('Invalid email'),
@@ -24,7 +25,9 @@ router.post('/reset_password' , [
 router.get('/profile', require('../middlewares/auth.middleware').authUser, require('../controllers/user.controller').getUserProfile)
 
 router.post('/logout', require('../middlewares/auth.middleware').authUser, require('../controllers/user.controller').logoutUser)
+router.get('/logout', require('../middlewares/auth.middleware').authUser, require('../controllers/user.controller').logoutUser)
 
 router.get('/auth' ,require('../middlewares/auth.middleware').authUser , require('../controllers/user.controller').auth) 
+router.get('/internal/:id', requireInternalServiceKey, require('../controllers/user.controller').getInternalUserById)
 
 module.exports = router

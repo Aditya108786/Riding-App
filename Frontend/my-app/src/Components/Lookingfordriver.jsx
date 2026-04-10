@@ -1,18 +1,15 @@
-﻿import React, { useContext, useEffect, useState } from "react";
+import React, { useContext, useEffect, useState, useRef } from "react";
 import axios from "axios";
 import { SocketContext } from "../context/socketcontext";
 import LiveMap from "./LiveMap";
 import { useNavigate } from "react-router-dom";
-import markerIcon2x from 'leaflet/dist/images/marker-icon-2x.png';
-import markerShadow from 'leaflet/dist/images/marker-shadow.png';
+import markerIcon2x from "leaflet/dist/images/marker-icon-2x.png";
+import markerShadow from "leaflet/dist/images/marker-shadow.png";
 import { Ridingcontext } from "../context/Ridingcontext";
 import { UserdataContext } from "../context/usercontext";
-import { useRef } from "react";         
-import gsap from "gsap";
-import { useGSAP } from "@gsap/react";
-import L from 'leaflet';
+import L from "leaflet";
 import { Sendmessage } from "./Sendmessage";
-
+import { buildServiceUrl } from "../lib/serviceUrl";
 
 const customCaptainIcon = new L.Icon({
   iconUrl: markerIcon2x,
@@ -29,14 +26,13 @@ export const Lookingfordriver = (props) => {
   const { user } = useContext(UserdataContext);
   const [ridestatus, setridestatus] = useState({});
   const [fullAddress, setFullAddress] = useState("");
-  const [roomid , setroomid] = useState(null)
+  const [roomid, setroomid] = useState(null);
   const navigate = useNavigate();
-  const [messagepanel , setmessagepanel] = useState(false)
+  const [messagepanel, setmessagepanel] = useState(false);
 
-  const messageref = useRef()
+  const messageref = useRef();
   const userId = user?.user?._id || user?._id;
 
-  // Ensure user joins socket so Redis has user:<id> -> socket.id
   useEffect(() => {
     if (!socket || !userId) return;
     if (socket.connected) {
@@ -48,17 +44,16 @@ export const Lookingfordriver = (props) => {
     }
   }, [socket, userId]);
 
-  // Handle ride-confirmed event and set initial driver location + details
   useEffect(() => {
+    if (!socket) return;
+
     const handler = async (data) => {
-     
       setridestatus(data);
-      console.log("confirming ride", data)
       const rideId = data?.ride?._id || data?._id;
-      if (rideId && socket) {
-        const roomId = `chat_${rideId}`;
-        socket.emit("start:chat-room", roomId);
-        setroomid(roomId);
+      if (rideId) {
+        const nextRoomId = `chat_${rideId}`;
+        socket.emit("start:chat-room", nextRoomId);
+        setroomid(nextRoomId);
       }
 
       if (data?.ride?.status === "Accepted") {
@@ -67,89 +62,79 @@ export const Lookingfordriver = (props) => {
         const lat = data?.ride?.captain?.location?.ltd ?? data?.ride?.captain?.location?.lat;
         if (lat != null && lng != null) setlivelocation({ lat, lng });
 
-        try {
-          if (props?.setvehiclefound) props.setvehiclefound(true);
-        } catch (e) { /* ignore */ }
+        if (props?.setvehiclefound) props.setvehiclefound(true);
 
-        try {
-          if (lat != null && lng != null) {
+        if (lat != null && lng != null) {
+          try {
             const response = await axios.post(
-             `${import.meta.env.VITE_BASE_URL}/maps/getfulladdress`,
+              buildServiceUrl('/maps/getfulladdress'),
               { lat, lng },
               { withCredentials: true }
             );
             setFullAddress(response.data.address);
+          } catch (err) {
+            console.error("address fetch error", err);
           }
-        } catch (err) {
-          console.log(err);
         }
       }
     };
 
-    socket?.on("ride-confirmed", handler);
-    return () => socket?.off("ride-confirmed", handler);
-  }, [socket]);
-
-
-  useEffect(()=>{
-       socket.on("start:chat" , (roomId)=>{
-          setroomid(roomId)
-          setmessagepanel(true)
-         socket.emit("start:chat-room", 
-          roomId
-         )
-    })
-    
-
-  },[socket])
-
-  
+    socket.on("ride-confirmed", handler);
+    return () => socket.off("ride-confirmed", handler);
+  }, [socket, setlivelocation, props]);
 
   useEffect(() => {
+    if (!socket) return;
+
+    const onStartChat = (nextRoomId) => {
+      setroomid(nextRoomId);
+      setmessagepanel(true);
+      socket.emit("start:chat-room", nextRoomId);
+    };
+
+    socket.on("start:chat", onStartChat);
+    return () => socket.off("start:chat", onStartChat);
+  }, [socket]);
+
+  useEffect(() => {
+    if (!socket) return;
+
     const handler = (data) => {
-     
       setridingdata(data);
       navigate("/user-riding");
     };
     socket.on("ride-started", handler);
-    return () => {
-      socket.off("ride-started", handler);
-    };
-  }, [socket]);
+    return () => socket.off("ride-started", handler);
+  }, [socket, navigate, setridingdata]);
 
-  // Listen for continuous captain location updates and update map + address
   useEffect(() => {
+    if (!socket) return;
+
     const liveHandler = async (data) => {
-         
       const loc = data?.location || data;
       const lat = loc?.ltd ?? loc?.lat ?? null;
       const lng = loc?.lng ?? loc?.lon ?? null;
-      console.log("Live location" , lat , lng)
       if (lat != null && lng != null) {
         setlivelocation({ lat, lng });
         try {
           const response = await axios.post(
-           `${import.meta.env.VITE_BASE_URL}/maps/getfulladdress`,
+            buildServiceUrl('/maps/getfulladdress'),
             { lat, lng },
             { withCredentials: true }
           );
           setFullAddress(response.data.address);
         } catch (err) {
-          console.log(err);
+          console.error("address fetch error", err);
         }
       }
     };
 
-    socket?.on("captain-live-location", liveHandler);
-    return () => socket?.off("captain-live-location", liveHandler);
+    socket.on("captain-live-location", liveHandler);
+    return () => socket.off("captain-live-location", liveHandler);
   }, [socket, setlivelocation]);
-
-
-  
 
   return (
     <div className="w-full h-screen bg-white rounded-t-3xl p-5 shadow-lg relative flex flex-col">
-      {/* Close Button */}
       <h5
         onClick={() => (props?.onMinimize ? props.onMinimize() : props.setvehiclefound(false))}
         className="absolute top-3 w-full text-center"
@@ -157,7 +142,6 @@ export const Lookingfordriver = (props) => {
         <i className="ri-arrow-down-wide-line text-3xl text-gray-500"></i>
       </h5>
 
-      {/* Header */}
       <div className="text-center mt-8 mb-5">
         <h3 className="text-2xl font-semibold">
           {ridestatus?.ride?.status !== "Accepted" ? "Looking for a driver..." : "Driver Found!"}
@@ -169,7 +153,6 @@ export const Lookingfordriver = (props) => {
 
       <div className={`flex-1 ${messagepanel ? "flex flex-col min-h-0" : "overflow-y-auto pb-4"}`}>
         <div className={messagepanel ? "flex-[3] overflow-y-auto pb-4 min-h-0" : ""}>
-          {/* Map area */}
           <div className="mb-4">
             <div className="h-48 sm:h-56 md:h-64 w-full rounded-2xl overflow-hidden shadow-sm border border-gray-100">
               {livelocation ? (
@@ -183,13 +166,12 @@ export const Lookingfordriver = (props) => {
             </div>
           </div>
 
-          {/* Info Card */}
           <div className="bg-white rounded-2xl p-4 md:p-5 border border-gray-100 shadow-sm">
             <div className="flex items-start gap-4">
-              <img 
-                className="h-14 w-14 md:h-16 md:w-16 rounded-full object-cover border-2 border-gray-100" 
-                src={ridestatus?.ride?.captain?.profilePic || "https://www.gravatar.com/avatar?d=mp&s=120"} 
-                alt="driver" 
+              <img
+                className="h-14 w-14 md:h-16 md:w-16 rounded-full object-cover border-2 border-gray-100"
+                src={ridestatus?.ride?.captain?.profilePic || "https://www.gravatar.com/avatar?d=mp&s=120"}
+                alt="driver"
               />
               <div className="flex-1 min-w-0">
                 <div className="flex flex-wrap items-start justify-between gap-2">
@@ -198,7 +180,7 @@ export const Lookingfordriver = (props) => {
                       {ridestatus?.ride?.captain?.fullname?.firstname || "Driver"}
                     </h4>
                     <p className="text-xs md:text-sm text-gray-500 truncate">
-                      {ridestatus?.ride?.captain?.vehicle?.name || "Vehicle"} â€¢ {ridestatus?.ride?.captain?.vehicle?.plate || "-"}
+                      {ridestatus?.ride?.captain?.vehicle?.name || "Vehicle"} | {ridestatus?.ride?.captain?.vehicle?.plate || "-"}
                     </p>
                   </div>
                   <div className="flex flex-col items-end">
@@ -223,16 +205,15 @@ export const Lookingfordriver = (props) => {
               </div>
             </div>
 
-            {/* Actions */}
             <div className="mt-5 flex gap-3">
-              <a 
-                href={`tel:${ridestatus?.ride?.captain?.phone || ""}`} 
+              <a
+                href={`tel:${ridestatus?.ride?.captain?.phone || ""}`}
                 className="flex-1 flex items-center justify-center gap-2 bg-green-600 active:bg-green-700 text-white py-2.5 rounded-xl text-sm md:text-base font-bold transition-all shadow-md shadow-green-100"
               >
                 <i className="ri-phone-fill"></i> Call
               </a>
-              <button 
-                onClick={() => setmessagepanel(true)} 
+              <button
+                onClick={() => setmessagepanel(true)}
                 className="flex-1 bg-gray-100 hover:bg-gray-200 active:bg-gray-300 text-black py-2.5 rounded-xl text-sm md:text-base font-bold transition-all"
               >
                 Message

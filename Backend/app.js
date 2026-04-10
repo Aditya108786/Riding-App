@@ -9,6 +9,12 @@ const captainRoute = require('./routes/captain.routes');
 const maproutes = require('./routes/maps.route')
 const rideroutes = require('./routes/ride.route')
 const app = express();
+const serviceScope = (process.env.SERVICE_SCOPE || 'all').toLowerCase();
+
+const shouldMount = (...scopes) => {
+    if (serviceScope === 'all') return true;
+    return scopes.includes(serviceScope);
+};
 
 // CORS
 app.use(cors({
@@ -28,8 +34,15 @@ connectDB();
 
 // Routes
 app.get('/', (req, res) => res.send("Hello Aditya"));
-app.use('/user', userRoutes);
-app.use('/captain', captainRoute);
-app.use('/maps' , maproutes)
-app.use('/ride', rideroutes)
+if (shouldMount('user')) {
+    app.use('/user', userRoutes);
+}
+if (shouldMount('captain')) {
+    app.use('/captain', captainRoute);
+}
+if (shouldMount('rides')) {
+    app.use('/maps', maproutes);
+    app.use('/ride', rideroutes);
+}
+
 module.exports = app;

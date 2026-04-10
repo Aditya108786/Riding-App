@@ -5,6 +5,7 @@ import { useNavigate, Link } from "react-router-dom";
 import { Mail, Lock, ArrowLeft, Loader2 } from "lucide-react";
 // Import the new modal component
 import ChangePasswordModal from "../Components/ChangePasswordModal.jsx"; 
+import { buildServiceUrl } from "../lib/serviceUrl";
 
 const Userlogin = () => {
   const [email, setEmail] = useState("");
@@ -20,7 +21,7 @@ const Userlogin = () => {
     seterror(null);
     try {
       const response = await axios.post(
-      `${import.meta.env.VITE_BASE_URL}/user/login`,
+      buildServiceUrl('/user/login'),
         { email, password },
         { withCredentials: true }
       );

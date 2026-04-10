@@ -1,21 +1,18 @@
-import React, { useContext } from 'react';
+import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { UserdataContext } from '../context/usercontext';
-import { CaptainContext } from '../context/captaincontext';
 // Using standard icons that are guaranteed to be in the lucide-react library
 import { Car, UserCircle, ChevronRight, MapPin } from 'lucide-react';
 
 const Home = () => {
      const navigate = useNavigate()
-     const {userdata} = useContext(UserdataContext)
-    // const {captain} = useContext(CaptainContext)
+
     const Gotouser = ()=>{
 
          navigate('/Userlogin')
     }
 
     const Gotocaptain = ()=>{
-        navigate('/captainlogin')
+        navigate('/Captainlogin')
     }
 
     const RegisterCaptain = ()=>{

@@ -2,6 +2,7 @@
 import { useEffect } from "react";
 import { useState , createContext } from "react";
 import axios from "axios";
+import { buildServiceUrl } from "../lib/serviceUrl";
 export const UserdataContext = createContext()
 
 
@@ -26,12 +27,16 @@ export const  UserContext = ({children}) =>{
 
   useEffect(()=>{
        const fetchuserdata = async()=>{
-            const res = await axios.get(`${import.meta.env.VITE_BASE_URL}/user/profile` , {
-                  withCredentials:true
-            })
-            
-            if(res.status == 200){
-                setuserdata(res.data)
+            try {
+                const res = await axios.get(buildServiceUrl('/user/profile') , {
+                      withCredentials:true
+                })
+                
+                if(res.status === 200){
+                    setuserdata(res.data)
+                }
+            } catch (err) {
+                // Ignore on public routes where user is not logged in.
             }
        }
        fetchuserdata()

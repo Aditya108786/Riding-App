@@ -11,16 +11,16 @@ module.exports.createCaptain = async({firstname, lastname, email, password,color
 
         const captain = await captainModel.create({
             fullname:{
-                firstname,
-                lastname
+                firstname: firstname.trim(),
+                lastname: (lastname || '').trim()
             },
-            email,
+            email: email.trim(),
             password,
-            phone,
+            phone: phone.trim(),
             vehicle:{
-                color,
-                plate,
-                capacity,
+                color: color.trim(),
+                plate: plate.trim(),
+                capacity: Number(capacity),
                 vehicleType
             }
         })

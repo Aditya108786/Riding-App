@@ -3,6 +3,7 @@ import { UserdataContext } from '../context/usercontext.jsx'
 import axios from 'axios'
 import { Link, useNavigate } from 'react-router-dom'
 import { ArrowLeft, Phone, Mail, Lock, ChevronRight, Eye, EyeOff } from 'lucide-react'
+import { buildServiceUrl } from '../lib/serviceUrl'
 
 const Usersignup = () => {
     const [firstname, setFirstname] = useState("");
@@ -13,7 +14,7 @@ const Usersignup = () => {
     const [showPassword, setShowPassword] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [error, setError] = useState("");
-
+   
     const { setuserdata } = useContext(UserdataContext)
     const navigate = useNavigate();
 
@@ -33,7 +34,7 @@ const Usersignup = () => {
 
         setIsSubmitting(true);
         try {
-            const res = await axios.post(`${import.meta.env.VITE_BASE_URL}/user/register`, newuser)
+            const res = await axios.post(buildServiceUrl('/user/register'), newuser)
             if (res.status === 201) {
                 const { user } = res.data
                 setuserdata(user)

@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom'
 import { CaptaindataContext } from '../context/captaincontext'
 import axios from 'axios'
 import { ArrowLeft, User, Mail, Lock, Phone, Car, Hash, Users, ChevronDown } from 'lucide-react'
+import { buildServiceUrl } from '../lib/serviceUrl'
 
 const CaptainSignup = () => {
   const navigate = useNavigate()
@@ -35,7 +36,7 @@ const CaptainSignup = () => {
     }
 
     try {
-      const response = await axios.post(`${import.meta.env.VITE_BASE_URL}/captain/register`, captainData)
+      const response = await axios.post(buildServiceUrl('/captain/register'), captainData)
       if (response.status === 201) {
         setcaptaindata(response.data.captain)
        // localStorage.setItem('token', response.data.token)

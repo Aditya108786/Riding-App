@@ -1,28 +1,189 @@
 version: '3.8'
 
-services:
+x-backend-common: &backend-common
+  build:
+    context: ./Backend
+    dockerfile: Dockerfile
+  restart: unless-stopped
+  environment:
+    NODE_ENV: production
+    CLIENT_URL: http://localhost:5173
+    DB_CONNECT: mongodb://admin:password@mongo:27017/uberclone?authSource=admin
+    JWT_SECRET: supersecret_jwt_change_me
+    REDIS_URL: redis://redis:6379
+    REDIS_TLS: "false"
+    INTERNAL_SERVICE_KEY: supersecret_internal_key_change_me
+    USER_SERVICE_URL: http://user-service:5000
+    CAPTAIN_SERVICE_URL: http://captain-service:5000
+    RIDE_SERVICE_URL: http://rides-service:5000
+    REALTIME_SERVICE_URL: http://realtime-service:5000
+    OPENROUTESERVICE_API_KEY: ${OPENROUTESERVICE_API_KEY:-}
+  depends_on:
+    mongo:
+      condition: service_healthy
+    redis:
+      condition: service_healthy
+  networks:
+    - uber-net
 
-  backend:
-    build: ./backend
+services:
+  mongo:
+    image: mongo:7
+    restart: unless-stopped
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: password
     ports:
-      - "5000:5000"
-    
-    env_file:
-      - ./backend/.env
-    
-    
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')", "-u", "admin", "-p", "password", "--authenticationDatabase", "admin"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    networks:
+      - uber-net
+
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    networks:
+      - uber-net
+
+  mongo-express:
+    image: mongo-express:1.0.2
+    restart: unless-stopped
+    depends_on:
+      mongo:
+        condition: service_healthy
+    ports:
+      - "8081:8081"
+    environment:
+      ME_CONFIG_BASICAUTH_USERNAME: admin
+      ME_CONFIG_BASICAUTH_PASSWORD: pass
+      ME_CONFIG_MONGODB_ADMINUSERNAME: admin
+      ME_CONFIG_MONGODB_ADMINPASSWORD: password
+      ME_CONFIG_MONGODB_SERVER: mongo
+      ME_CONFIG_MONGODB_ENABLE_ADMIN: "true"
+    networks:
+      - uber-net
+
+  user-service:
+    <<: *backend-common
+    container_name: user-service
+    environment:
+      SERVICE_SCOPE: user
+      NODE_ENV: production
+      CLIENT_URL: http://localhost:5173
+      DB_CONNECT: mongodb://admin:password@mongo:27017/uberclone?authSource=admin
+      JWT_SECRET: supersecret_jwt_change_me
+      REDIS_URL: redis://redis:6379
+      REDIS_TLS: "false"
+      INTERNAL_SERVICE_KEY: supersecret_internal_key_change_me
+      USER_SERVICE_URL: http://user-service:5000
+      CAPTAIN_SERVICE_URL: http://captain-service:5000
+      RIDE_SERVICE_URL: http://rides-service:5000
+      REALTIME_SERVICE_URL: http://realtime-service:5000
+      OPENROUTESERVICE_API_KEY: ${OPENROUTESERVICE_API_KEY:-}
+    command: ["npm", "run", "start:api"]
+    ports:
+      - "5001:5000"
+
+  captain-service:
+    <<: *backend-common
+    container_name: captain-service
+    environment:
+      SERVICE_SCOPE: captain
+      NODE_ENV: production
+      CLIENT_URL: http://localhost:5173
+      DB_CONNECT: mongodb://admin:password@mongo:27017/uberclone?authSource=admin
+      JWT_SECRET: supersecret_jwt_change_me
+      REDIS_URL: redis://redis:6379
+      REDIS_TLS: "false"
+      INTERNAL_SERVICE_KEY: supersecret_internal_key_change_me
+      USER_SERVICE_URL: http://user-service:5000
+      CAPTAIN_SERVICE_URL: http://captain-service:5000
+      RIDE_SERVICE_URL: http://rides-service:5000
+      REALTIME_SERVICE_URL: http://realtime-service:5000
+      OPENROUTESERVICE_API_KEY: ${OPENROUTESERVICE_API_KEY:-}
+    command: ["npm", "run", "start:api"]
+    ports:
+      - "5002:5000"
+
+  rides-service:
+    <<: *backend-common
+    container_name: rides-service
+    environment:
+      SERVICE_SCOPE: rides
+      NODE_ENV: production
+      CLIENT_URL: http://localhost:5173
+      DB_CONNECT: mongodb://admin:password@mongo:27017/uberclone?authSource=admin
+      JWT_SECRET: supersecret_jwt_change_me
+      REDIS_URL: redis://redis:6379
+      REDIS_TLS: "false"
+      INTERNAL_SERVICE_KEY: supersecret_internal_key_change_me
+      USER_SERVICE_URL: http://user-service:5000
+      CAPTAIN_SERVICE_URL: http://captain-service:5000
+      RIDE_SERVICE_URL: http://rides-service:5000
+      REALTIME_SERVICE_URL: http://realtime-service:5000
+      OPENROUTESERVICE_API_KEY: ${OPENROUTESERVICE_API_KEY:-}
+    command: ["npm", "run", "start:api"]
+    ports:
+      - "5003:5000"
+
+  realtime-service:
+    <<: *backend-common
+    container_name: realtime-service
+    environment:
+      SERVICE_SCOPE: realtime
+      NODE_ENV: production
+      CLIENT_URL: http://localhost:5173
+      DB_CONNECT: mongodb://admin:password@mongo:27017/uberclone?authSource=admin
+      JWT_SECRET: supersecret_jwt_change_me
+      REDIS_URL: redis://redis:6379
+      REDIS_TLS: "false"
+      INTERNAL_SERVICE_KEY: supersecret_internal_key_change_me
+      USER_SERVICE_URL: http://user-service:5000
+      CAPTAIN_SERVICE_URL: http://captain-service:5000
+      RIDE_SERVICE_URL: http://rides-service:5000
+      REALTIME_SERVICE_URL: http://realtime-service:5000
+      OPENROUTESERVICE_API_KEY: ${OPENROUTESERVICE_API_KEY:-}
+    command: ["npm", "run", "start:realtime"]
+    ports:
+      - "5004:5000"
 
   frontend:
-    build: ./Frontend/my-app
-
-    ports:
-      - "5173:5173"
-    
-    env_file:
-      - ./Frontend/my-app/.env
-    
+    build:
+      context: ./Frontend/my-app
+      dockerfile: Dockerfile
+      args:
+        VITE_API_GATEWAY_URL: http://localhost:5003
+        VITE_USER_SERVICE_URL: http://localhost:5001
+        VITE_CAPTAIN_SERVICE_URL: http://localhost:5002
+        VITE_RIDE_SERVICE_URL: http://localhost:5003
+        VITE_REALTIME_SERVICE_URL: http://localhost:5004
+    restart: unless-stopped
     depends_on:
-      - backend
+      - user-service
+      - captain-service
+      - rides-service
+      - realtime-service
+    ports:
+      - "5173:80"
+    networks:
+      - uber-net
 
-  
-  
+volumes:
+  mongo_data:
+
+networks:
+  uber-net:
+    driver: bridge

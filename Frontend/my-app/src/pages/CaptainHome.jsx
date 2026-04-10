@@ -11,6 +11,8 @@ import LiveMap from "../Components/LiveMap";
 import L from "leaflet";
 import markerIcon2x from "leaflet/dist/images/marker-icon-2x.png";
 import markerShadow from "leaflet/dist/images/marker-shadow.png";
+import { useNavigate } from "react-router-dom";
+import { buildServiceUrl } from "../lib/serviceUrl";
 
 const customCaptainIcon = new L.Icon({
   iconUrl: markerIcon2x,
@@ -39,6 +41,7 @@ const CaptainHome = () => {
 
   const { socket } = useContext(SocketContext);
   const { captain } = useContext(CaptaindataContext);
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (!selectedRideId && rideRequests.length) {
@@ -133,14 +136,14 @@ const CaptainHome = () => {
         const [pickupAddr, destAddr] = await Promise.all([
           axios
             .post(
-              `${import.meta.env.VITE_BASE_URL}/maps/getfulladdress`,
+              buildServiceUrl('/maps/getfulladdress'),
               { lat: pickupLat, lng: pickupLng },
               { withCredentials: true }
             )
             .then((res) => res.data.address),
           axios
             .post(
-              `${import.meta.env.VITE_BASE_URL}/maps/getfulladdress`,
+              buildServiceUrl('/maps/getfulladdress'),
               { lat: destLat, lng: destLng },
               { withCredentials: true }
             )
@@ -219,7 +222,11 @@ const CaptainHome = () => {
         )}
 
         <div className="absolute top-5 right-5 z-[1000]">
-          <button className="h-10 w-10 bg-white flex items-center justify-center rounded-full shadow-lg border">
+          <button
+            type="button"
+            onClick={() => navigate("/Captainlogout")}
+            className="h-10 w-10 bg-white flex items-center justify-center rounded-full shadow-lg border"
+          >
             <i className="ri-logout-box-r-line text-lg text-gray-700"></i>
           </button>
         </div>

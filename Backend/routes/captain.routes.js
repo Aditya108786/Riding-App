@@ -6,6 +6,7 @@ const {body} = require('express-validator')
 const captainController = require('../controllers/captain.controller')
 const authMiddleware = require('../middlewares/auth.middleware')
 const { reset_password } = require('../controllers/captain.controller')
+const { requireInternalServiceKey } = require('../middlewares/internal.middleware')
 
 
 router.post('/register',[
@@ -33,8 +34,10 @@ router.post("/reset_password" , [
 router.get('/profile', authMiddleware.authCaptain, captainController.getCaptainprofile)
 
 router.get('/logout', authMiddleware.authCaptain, captainController.logoutCaptain)
+router.post('/logout', authMiddleware.authCaptain, captainController.logoutCaptain)
 
 router.get('/auth' ,authMiddleware.authCaptain , captainController.auth)
+router.get('/internal/:id', requireInternalServiceKey, captainController.getInternalCaptainById)
 
 
 module.exports = router

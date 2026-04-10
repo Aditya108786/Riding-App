@@ -1,6 +1,7 @@
 import { createContext, useEffect } from "react";
 import { useState } from "react";
 import axios from "axios";
+import { buildServiceUrl } from "../lib/serviceUrl";
 export const CaptaindataContext = createContext()
 
 
@@ -22,12 +23,15 @@ export const CaptainContext = ({children}) =>{
 
           useEffect(()=>{
                const fetchcaptain = async()=>{
-                      const res = await axios.get(`${import.meta.env.VITE_BASE_URL}/captain/profile`,{withCredentials:true})
-                     
-                      if(res.status === 200){
-                        setcaptaindata(res.data)
+                      try {
+                        const res = await axios.get(buildServiceUrl('/captain/profile'),{withCredentials:true})
+                       
+                        if(res.status === 200){
+                          setcaptaindata(res.data)
+                        }
+                      } catch (err) {
+                        // Ignore on public routes where captain is not logged in.
                       }
-                      console.log(res.data)
                }
 
                fetchcaptain()

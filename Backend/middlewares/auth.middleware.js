@@ -22,7 +22,9 @@ try {
      const decoded = jwt.verify(token, process.env.JWT_SECRET)
      
        req.user = await usermodel.findById(decoded._id)
-       console.log(req.user)
+       if (!req.user) {
+        return res.status(401).json({message: "Unauthorized access"})
+       }
        
          next()
 } catch (error) {
@@ -43,15 +45,18 @@ module.exports.authCaptain = async function(req,res,next){
 
     const blacklistToken = await blacklistTokenModel.findOne({token:token})
     if(blacklistToken){
-        return res.status(401).json({message:" Unauthorized access"})
+        return res.status(401).json({message:"Unauthorized access"})
     }
 
     try {
         const decoded = jwt.verify(token , process.env.JWT_SECRET)
         req.captain = await captainModel.findById(decoded._id)
+        if (!req.captain) {
+          return res.status(401).json({message:"Unauthorized access"})
+        }
         next()
     } catch (error) {
-        return res.status(401).json({message:" Unauthorized access"})
+        return res.status(401).json({message:"Unauthorized access"})
         
     }
 }

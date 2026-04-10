@@ -1,5 +1,6 @@
 import { createContext, useEffect, useState } from "react";
 import { io } from "socket.io-client";
+import { SERVICE_URLS } from "../lib/serviceUrl";
 
 export const SocketContext = createContext(null);
 
@@ -11,20 +12,12 @@ export const SocketProvider = ({ children }) => {
   
 
   useEffect(() => {
-    const newsocket = io(`${import.meta.env.VITE_BASE_URL}` ,{
+    const newsocket = io(SERVICE_URLS.realtime ,{
        withCredentials:true,
         transports: ["websocket"], // 🔥 VERY IMPORTANT
       autoConnect: true
     });
     setSocket(newsocket); // ✅ store it in state
-
-    newsocket.on("connect", () => {
-      console.log(`client connected ${newsocket.id}`);
-    });
-
-    newsocket.on("disconnect", () => {
-      console.log(`client disconnected ${newsocket.id}`);
-    });
 
     // Listen for captain live location and update shared state so any page can show it
     const captainHandler = (data) => {

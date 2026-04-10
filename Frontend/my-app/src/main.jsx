@@ -6,11 +6,13 @@ import {CaptainContext} from './context/captaincontext.jsx'
 
 import './index.css'
 import App from './App.jsx'
-import { SocketContext, SocketProvider } from './context/socketcontext.jsx'
+import { SocketProvider } from './context/socketcontext.jsx'
 import { Contextprovider } from './context/Ridingcontext.jsx'
+import { ToastProvider } from './Components/Toast.jsx'
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
+    <ToastProvider>
      <Contextprovider>
     <SocketProvider>
     <CaptainContext>
@@ -22,6 +24,7 @@ createRoot(document.getElementById('root')).render(
     </CaptainContext>
     </SocketProvider>
     </Contextprovider>
+    </ToastProvider>
     
   </StrictMode>
 )

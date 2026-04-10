@@ -2,6 +2,7 @@ import { useEffect, useState, useRef } from "react";
 import { createPortal } from "react-dom";
 import axios from "axios";
 import polyline from "@mapbox/polyline";
+import { buildServiceUrl } from "../lib/serviceUrl";
 
 const LocationSearch = ({
   pickup, destination, vehiclepanel, setvehiclepanel, setHidden, setsummary, setpolyline,
@@ -126,7 +127,7 @@ const LocationSearch = ({
     const getRoute = async () => {
       if (!arrpickup.length || !arrdestination.length) return;
       try {
-        const response = await axios.post(`${import.meta.env.VITE_BASE_URL}/maps/distancetime`,
+        const response = await axios.post(buildServiceUrl('/maps/distancetime'),
           { arrpickup, arrdestination },
           { withCredentials: true }
         );

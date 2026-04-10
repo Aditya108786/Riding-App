@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Lock, ShieldCheck, Eye, EyeOff, Loader2 } from 'lucide-react';
 import axios from 'axios';
+import { buildServiceUrl } from '../lib/serviceUrl';
 
 const ChangePassword = () => {
   const [newPassword, setNewPassword] = useState('');
@@ -25,7 +26,7 @@ const ChangePassword = () => {
 
     try {
       // Replace with your actual password reset endpoint
-      const response = await axios.post(`${import.meta.env.VITE_BASE_URL}/user/reset_password`, {
+      const response = await axios.post(buildServiceUrl('/user/reset_password'), {
         password: newPassword,
       });
 

@@ -5,7 +5,21 @@ const captainService = require('../services/captain.service')
 const Ride = require('../models/ride.model')
 const {validationResult} = require('express-validator')
 
+const getCookieOptions = () => ({
+  sameSite: 'None',
+  httpOnly: true,
+  secure: true,
+})
+
+const sanitizeCaptain = (captainDoc) => {
+  if (!captainDoc) return null
+  const captain = captainDoc.toObject ? captainDoc.toObject() : { ...captainDoc }
+  delete captain.password
+  return captain
+}
+
 module.exports.registerCaptain = async function(req,res,next){
+    try {
       const errors = validationResult(req)
       if(!errors.isEmpty()){
         return res.status(400).json({errors:errors.array()})
@@ -34,14 +48,17 @@ module.exports.registerCaptain = async function(req,res,next){
        })
 
        const token = await captain.generateAuthtoken()
-       res.cookie('captaintoken' , token , {
-            sameSite:'None',
-            httpOnly:true,
-            secure:true
-       }).status(201).json({token, captain})
+       res
+        .cookie('captaintoken' , token , getCookieOptions())
+        .status(201)
+        .json({token, captain: sanitizeCaptain(captain)})
+    } catch (error) {
+      return res.status(500).json({ message: error.message || 'Failed to register captain' })
+    }
 }
 
 module.exports.captainLogin = async(req,res,next)=>{
+    try {
     const errors = validationResult(req);
     if(!errors.isEmpty()){
         return res.status(400).json({errors:errors.array()})
@@ -62,13 +79,13 @@ module.exports.captainLogin = async(req,res,next)=>{
     }
 
     const token = await captain.generateAuthtoken()
-    res.cookie('captaintoken', token ,{
-        sameSite:"None",
-        secure:true,
-        httpOnly:true
-
-    })
-    res.status(200).json({token, captain})
+    res
+      .cookie('captaintoken', token, getCookieOptions())
+      .status(200)
+      .json({token, captain: sanitizeCaptain(captain)})
+    } catch (error) {
+      return res.status(500).json({ message: error.message || 'Failed to login captain' })
+    }
 }
 
 module.exports.getCaptainprofile = async(req,res,next)=>{
@@ -90,17 +107,18 @@ module.exports.getCaptainprofile = async(req,res,next)=>{
         { $set: { Rides: totalRides, Revenue: totalEarnings } }
       )
 
-      res.status(200).json({
-        ...captain.toObject(),
+      return res.status(200).json({
+        ...sanitizeCaptain(captain),
         Rides: totalRides,
         Revenue: totalEarnings
       })
     } catch (err) {
-      res.status(200).json(captain)
+      return res.status(500).json({ message: 'Failed to fetch captain profile' })
     }
 }
 
 module.exports.reset_password = async(req,res)=>{
+      try {
       const {email, password} = req.body
 
       const errors = validationResult(req)
@@ -118,26 +136,47 @@ module.exports.reset_password = async(req,res)=>{
 
       captain.password = hashPassword
       await captain.save()
-      return res.status(200).json(captain)
+      return res.status(200).json({ message: 'Password reset successful' })
 
-      
+      } catch (error) {
+        return res.status(500).json({ message: error.message || 'Failed to reset password' })
+      }
 
 }
 
 
 
 module.exports.logoutCaptain = async(req,res,next) =>{
-    res.clearCookie('captaintoken')
+    try {
+    res.clearCookie('captaintoken', getCookieOptions())
     const token = req.cookies.captaintoken || req.headers.authorization?.split(" ")[1]
-    await blacklistTokenModel.updateOne(
-        {token},
-        {$setOnInsert:{token}},
-        {upsert:true}
-    )
+    if (token) {
+      await blacklistTokenModel.updateOne(
+          {token},
+          {$setOnInsert:{token}},
+          {upsert:true}
+      )
+    }
     res.status(200).json({message:'Logged out successfully'})
+    } catch (error) {
+      return res.status(500).json({ message: error.message || 'Failed to logout captain' })
+    }
 }
 
 module.exports.auth = async(req,res)=>{
-    res.status(200).json({captain:req.captain})
+    res.status(200).json({captain:sanitizeCaptain(req.captain)})
+}
+
+module.exports.getInternalCaptainById = async (req, res) => {
+    try {
+      const captain = await captainModel.findById(req.params.id)
+      if (!captain) {
+        return res.status(404).json({ message: 'Captain not found' })
+      }
+
+      return res.status(200).json({ captain: sanitizeCaptain(captain) })
+    } catch (error) {
+      return res.status(500).json({ message: error.message || 'Failed to fetch captain' })
+    }
 }
 

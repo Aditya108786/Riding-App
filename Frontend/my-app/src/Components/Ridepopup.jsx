@@ -2,6 +2,9 @@ import React, { useContext, useState } from "react";
 import axios from "axios";
 import "remixicon/fonts/remixicon.css";
 import { SocketContext } from "../context/socketcontext";
+import { useToast } from "./Toast";
+import RideCard from "./RideCard";
+import { buildServiceUrl } from "../lib/serviceUrl";
 
 export const Ridepopup = ({
   rideRequests = [],
@@ -13,6 +16,7 @@ export const Ridepopup = ({
 }) => {
   const { socket, setroomid } = useContext(SocketContext);
   const [loading, setLoading] = useState(false);
+  const toast = useToast();
 
   const selectedRequest =
     rideRequests.find((item) => item.ride?._id === selectedRideId) || rideRequests[0];
@@ -24,7 +28,7 @@ export const Ridepopup = ({
     try {
       setLoading(true);
       const res = await axios.post(
-        `${import.meta.env.VITE_BASE_URL}/ride/confirmride`,
+        buildServiceUrl('/ride/confirmride'),
         { rideId: selectedRequest.ride._id },
         { withCredentials: true }
       );
@@ -42,6 +46,7 @@ export const Ridepopup = ({
         roomId: res.data.roomId,
         selectedRequest,
       });
+      toast.success("Ride accepted successfully");
     } catch (err) {
       const message = err?.response?.data?.message || "Failed to accept ride";
       if (message.toLowerCase().includes("already")) {
@@ -52,7 +57,7 @@ export const Ridepopup = ({
           rejected: true,
         });
       }
-      alert(message);
+      toast.error(message);
     } finally {
       setLoading(false);
     }
@@ -85,19 +90,12 @@ export const Ridepopup = ({
           {rideRequests.map((req) => {
             const active = req.ride?._id === selectedRequest?.ride?._id;
             return (
-              <button
+              <RideCard
                 key={req.ride?._id}
+                request={req}
+                active={active}
                 onClick={() => onSelectRide?.(req.ride?._id)}
-                className={`min-w-[190px] rounded-2xl border p-3 text-left transition-all ${
-                  active ? "border-black bg-gray-50 shadow-md" : "border-gray-200 bg-white"
-                }`}
-              >
-                <p className="text-sm font-bold text-gray-900">
-                  {req.ride?.user?.fullname?.firstname || "Passenger"}
-                </p>
-                <p className="text-xs text-gray-500 mt-1 line-clamp-1">{req.pickupaddress || "Pickup loading..."}</p>
-                <p className="text-base font-bold text-gray-900 mt-2">Rs {req.ride?.fare || "--"}</p>
-              </button>
+              />
             );
           })}
         </div>

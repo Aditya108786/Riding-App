@@ -2,12 +2,6 @@ import React from "react";
 import { Link } from "react-router-dom";
 
 export const Riding = (props) => {
-  const handleHomeClick = () => {
-    // Example navigation
-    if (props.navigate) props.navigate("/user/home");
-    else console.log("Go to Home");
-  };
-
   return (
     <div className="h-screen w-full flex flex-col bg-gray-50 relative">
       {/* Top Half - Map Image */}

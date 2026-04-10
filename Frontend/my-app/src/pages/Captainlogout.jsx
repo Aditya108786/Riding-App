@@ -2,6 +2,7 @@
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import { buildServiceUrl } from "../lib/serviceUrl";
 
 export const Captainlogout = () => {
   const navigate = useNavigate();
@@ -9,7 +10,7 @@ export const Captainlogout = () => {
   useEffect(() => {
     const logout = async () => {
       try {
-        const response = await axios.get(`${import.meta.env.VITE_BASE_URL}/captain/logout`, { withCredentials: true });
+        const response = await axios.get(buildServiceUrl('/captain/logout'), { withCredentials: true });
         if (response.status === 200) {
             
           navigate("/Captainlogin");

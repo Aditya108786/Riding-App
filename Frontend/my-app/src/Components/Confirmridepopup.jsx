@@ -5,16 +5,19 @@ import "remixicon/fonts/remixicon.css";
 import { CaptaindataContext } from "../context/captaincontext";
 import { SocketContext } from "../context/socketcontext";
 import {Sendmessagecaptain} from './Captainmessage'
+import { useToast } from "./Toast";
+import { buildServiceUrl } from "../lib/serviceUrl";
 const Confirmridepopup = (props) => {
   const navigate = useNavigate();
   const [otp, setotp] = useState("");
   const [loading, setLoading] = useState(false);
+  const toast = useToast();
 
   // 🔐 SAFETY: Prevent crash if data not ready
   if (!props?.ridedata?.ride) return null;
 
   
-  const {socket , roomId} = useContext(SocketContext)
+  const { roomId } = useContext(SocketContext)
 
   const { setCurrentRide } = useContext(CaptaindataContext);
 
@@ -24,7 +27,7 @@ const Confirmridepopup = (props) => {
     e.preventDefault();
 
     if (!otp) {
-      alert("Please enter OTP");
+      toast.error("Please enter OTP");
       return;
     }
 
@@ -32,7 +35,7 @@ const Confirmridepopup = (props) => {
       setLoading(true);
 
       const res = await axios.post(
-       `${import.meta.env.VITE_BASE_URL}/ride/startride`,
+       buildServiceUrl('/ride/startride'),
         {
           rideId: props.ridedata?.ride?._id,
           OTP: otp,
@@ -49,7 +52,7 @@ const Confirmridepopup = (props) => {
         navigate("/Captain-riding");
       }
     } catch (err) {
-      alert("Invalid OTP or server error");
+      toast.error(err?.response?.data?.message || "Invalid OTP or server error");
     } finally {
       setLoading(false);
     }

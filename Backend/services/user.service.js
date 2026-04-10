@@ -10,11 +10,11 @@ module.exports.createUser = async({firstname,lastname,email,phone, password})=>{
 
     const user = await usermodel.create({
         fullname:{
-            firstname,
-            lastname
+            firstname: firstname.trim(),
+            lastname: (lastname || '').trim()
         },
-        email,
-        phone,
+        email: email.trim(),
+        phone: phone.trim(),
         password
 
     })

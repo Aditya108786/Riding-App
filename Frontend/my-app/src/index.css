@@ -4,9 +4,22 @@
 @tailwind components;
 @tailwind utilities;
 
-/* App.css or index.css */
+:root {
+  --app-bg: #f8fafc;
+  --app-text: #0f172a;
+  --app-muted: #64748b;
+  --app-primary: #111827;
+  --app-accent: #2563eb;
+  --app-radius: 16px;
+}
+
+body {
+  background: var(--app-bg);
+  color: var(--app-text);
+}
+
 .leaflet-routing-alt h2 {
-  display: none; /* hides the route summary title */
+  display: none;
 }
 
 .live-label {
@@ -36,6 +49,3 @@
   font-size: 12px;
   font-weight: 600;
 }
-
-
-

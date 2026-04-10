@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Lock, X, Loader2, ShieldCheck } from 'lucide-react';
 import axios from 'axios';
+import { buildServiceUrl } from '../lib/serviceUrl';
 
 const ChangePasswordModal = ({type, onClose }) => {
   const [newPassword, setNewPassword] = useState('');
@@ -21,7 +22,7 @@ const ChangePasswordModal = ({type, onClose }) => {
     setError(null);
 
     try {
-          const endpoint = type === "captain" ? `${import.meta.env.VITE_BASE_URL}/captain/reset_password` : `${import.meta.env.VITE_BASE_URL}/user/reset_password`
+          const endpoint = type === "captain" ? buildServiceUrl('/captain/reset_password') : buildServiceUrl('/user/reset_password')
 
       const response = await axios.post(endpoint, {
         email,

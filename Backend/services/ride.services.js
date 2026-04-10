@@ -1,5 +1,3 @@
-const { Error } = require('mongoose')
-const rideModel = require('../models/ride.model')
 const ridemodel = require('../models/ride.model')
 const captainModel = require('../models/captain.model')
 const mapservice = require('../services/map.service')
@@ -87,7 +85,6 @@ module.exports.createride = async({pickup, destination , user,  vehicleType})=>{
 
 module.exports.getprice = async({pickup , destination, vehicleType})=>{
 
-      console.log(pickup, destination)
          if(!pickup || !destination || !vehicleType){
             throw new Error("pickup and destination required")
          }
@@ -111,17 +108,13 @@ module.exports.confirmRide = async(rideId , captain)=>{
           throw new Error("Captain already on a ride")
         }
 
-       const ride =  await ridemodel.findOneAndUpdate({_id:rideId, status:"Pending"} , {
+        const ride =  await ridemodel.findOneAndUpdate({_id:rideId, status:"Pending"} , {
               status:'Accepted',
               captain:captain._id
         },{
           new:true
         }).populate("user").populate("captain").select("+OTP")
 
-        /*if(!ride){
-           throw new Error("Ride not found")
-        }*/
-        console.log("confirmride",ride)
         return ride
 
        
@@ -137,7 +130,8 @@ module.exports.Startride = async(rideId, OTP , captain)=>{
       const ride = await ridemodel.findOneAndUpdate({
             _id:rideId,
             OTP:OTP,
-            status:"Accepted"
+            status:"Accepted",
+            captain:captain._id
       },
     {
         status:"ongoing",
@@ -156,34 +150,31 @@ module.exports.Startride = async(rideId, OTP , captain)=>{
 
 module.exports.Endride = async(rideId , captain)=>{
      
-      if(!rideId){
-        throw new Error("RideId required")
+      if(!rideId || !captain?._id){
+        throw new Error("RideId and captain required")
       }
 
-      try {
-         const ride = await ridemodel.findOneAndUpdate({
-             _id:rideId,
-             status:"ongoing"
-         }, {
-              status:"Completed"
-         },{
-          new:true,
-          runValidators:true
-         }).populate("user")
+      const ride = await ridemodel.findOneAndUpdate({
+          _id:rideId,
+          status:"ongoing",
+          captain: captain._id
+      }, {
+          status:"Completed"
+      },{
+        new:true,
+        runValidators:true
+      }).populate("user")
 
-         if(!ride){
-             throw new Error("Ride not found ")
-         }
-
-         if (ride.captain) {
-           await captainModel.updateOne(
-             { _id: ride.captain },
-             { $inc: { Rides: 1, Revenue: ride.fare } }
-           )
-         }
-
-         return ride
-      } catch (error) {
-           return (error.message)
+      if(!ride){
+          throw new Error("Ride not found")
       }
+
+      if (ride.captain) {
+        await captainModel.updateOne(
+          { _id: ride.captain },
+          { $inc: { Rides: 1, Revenue: ride.fare } }
+        )
+      }
+
+      return ride
 }

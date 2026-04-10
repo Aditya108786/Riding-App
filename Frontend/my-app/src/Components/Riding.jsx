@@ -5,6 +5,7 @@ import axios from "axios";
 import L from "leaflet";
 import markerIcon2x from 'leaflet/dist/images/marker-icon-2x.png';
 import markerShadow from 'leaflet/dist/images/marker-shadow.png';
+import { buildServiceUrl } from "../lib/serviceUrl";
 
 const customCaptainIcon = new L.Icon({
   iconUrl: markerIcon2x,
@@ -32,10 +33,10 @@ const Ridinguser = () => {
       if (lat != null && lng != null) {
         setlivelocation?.({ lat, lng });
         try {
-          const res = await axios.post(`${import.meta.env.VITE_BASE_URL}/maps/getfulladdress`, { lat, lng }, { withCredentials: true });
+          const res = await axios.post(buildServiceUrl('/maps/getfulladdress'), { lat, lng }, { withCredentials: true });
           setFullAddress(res.data.address);
         } catch (err) {
-          console.log("address fetch error", err);
+          console.error("address fetch error", err);
         }
       }
     };
@@ -48,10 +49,10 @@ const Ridinguser = () => {
       if (lat != null && lng != null) {
         setlivelocation?.({ lat, lng });
         try {
-          const res = await axios.post(`${import.meta.env.VITE_BASE_URL}/maps/getfulladdress`, { lat, lng }, { withCredentials: true });
+          const res = await axios.post(buildServiceUrl('/maps/getfulladdress'), { lat, lng }, { withCredentials: true });
           setFullAddress(res.data.address);
         } catch (err) {
-          console.log("address fetch error", err);
+          console.error("address fetch error", err);
         }
       }
     };

@@ -11,7 +11,7 @@ async function connectRedis() {
   redis = createClient({
     url: process.env.REDIS_URL,
     socket: {
-      tls: true,
+      tls: process.env.REDIS_TLS === "true",
       keepAlive: 10000,
       reconnectStrategy: (retries) => Math.min(retries * 100, 3000)
     }

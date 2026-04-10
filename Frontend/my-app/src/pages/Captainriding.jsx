@@ -3,15 +3,15 @@ import Finishride from "../Components/Finishride";
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 import "remixicon/fonts/remixicon.css";
-import { MapContainer, TileLayer, Marker, Popup, Polyline, CircleMarker, useMap } from "react-leaflet";
+import { MapContainer, TileLayer, Marker, useMap } from "react-leaflet";
 import L from "leaflet";
-import markerIcon2x from 'leaflet/dist/images/marker-icon-2x.png';
-import markerShadow from 'leaflet/dist/images/marker-shadow.png';
+import markerIcon2x from "leaflet/dist/images/marker-icon-2x.png";
+import markerShadow from "leaflet/dist/images/marker-shadow.png";
 import Routing from "../Components/Routing";
-import { RecenterMap } from "../Components/Recentermap";
 import { SocketContext } from "../context/socketcontext";
 import { CaptaindataContext } from "../context/captaincontext";
 import axios from "axios";
+import { buildServiceUrl } from "../lib/serviceUrl";
 
 const CaptainRiding = () => {
   const [finishride, setfinishride] = useState(false);
@@ -25,9 +25,6 @@ const CaptainRiding = () => {
 
   const [lat, setLat] = useState(28.4595);
   const [lng, setLng] = useState(77.0266);
-  const watchIdRef = useRef(null);
-  
- console.log("currentride" , currentRide)
 
   useGSAP(() => {
     if (!finishrideref.current) return;
@@ -46,58 +43,60 @@ const CaptainRiding = () => {
       const [destLng, destLat] = currentRide.destination;
       try {
         const [pickupRes, destRes] = await Promise.all([
-          axios.post(`${import.meta.env.VITE_BASE_URL}/maps/getfulladdress`, { lat: pickupLat, lng: pickupLng }, { withCredentials: true }),
-          axios.post(`${import.meta.env.VITE_BASE_URL}/maps/getfulladdress`, { lat: destLat, lng: destLng }, { withCredentials: true }),
+          axios.post(buildServiceUrl('/maps/getfulladdress'), { lat: pickupLat, lng: pickupLng }, { withCredentials: true }),
+          axios.post(buildServiceUrl('/maps/getfulladdress'), { lat: destLat, lng: destLng }, { withCredentials: true }),
         ]);
         setPickupAddr(pickupRes.data.address);
         setDropAddr(destRes.data.address);
         setLat(pickupLat);
         setLng(pickupLng);
-      } catch (err) { console.error(err); }
+      } catch (err) {
+        console.error(err);
+      }
     };
     fetchAddresses();
   }, [currentRide]);
 
   const customCaptainIcon = new L.Icon({
-    iconUrl: markerIcon2x, iconSize: [40, 40], iconAnchor: [20, 40],
-    popupAnchor: [0, -40], shadowUrl: markerShadow, shadowSize: [41, 41],
+    iconUrl: markerIcon2x,
+    iconSize: [40, 40],
+    iconAnchor: [20, 40],
+    popupAnchor: [0, -40],
+    shadowUrl: markerShadow,
+    shadowSize: [41, 41],
   });
 
-  useEffect(()=>{
-        console.log("currentride" , currentRide)
-        if (!socket || !currentRide?._id) {
-          return;
-        }
-        const watchId = navigator.geolocation.watchPosition((position)=>{
-                 
-               setLat(position.coords.latitude)
-               setLng(position.coords.longitude)
-
-               socket.emit("captain-location" , {
-                    captainId:currentRide.captain._id,
-                    rideId:currentRide._id,
-                    lat:position.coords.latitude,
-                    lng:position.coords.longitude
-               })
-         },
-
-         (error)=>{
-             console.error("Location error" , error)
-         },
-
-         
-          {
-      enableHighAccuracy: true,
-      maximumAge: 0,
-      timeout: 10000,
+  useEffect(() => {
+    if (!socket || !currentRide?._id) {
+      return;
     }
-         
-        
-        )
 
-        return ()=> {navigator.geolocation.clearWatch(watchId)}
-         
-  },[socket, currentRide?._id, currentRide?.captain?._id])
+    const watchId = navigator.geolocation.watchPosition(
+      (position) => {
+        setLat(position.coords.latitude);
+        setLng(position.coords.longitude);
+
+        socket.emit("captain-location", {
+          captainId: currentRide.captain._id,
+          rideId: currentRide._id,
+          lat: position.coords.latitude,
+          lng: position.coords.longitude,
+        });
+      },
+      (error) => {
+        console.error("Location error", error);
+      },
+      {
+        enableHighAccuracy: true,
+        maximumAge: 0,
+        timeout: 10000,
+      }
+    );
+
+    return () => {
+      navigator.geolocation.clearWatch(watchId);
+    };
+  }, [socket, currentRide?._id, currentRide?.captain?._id]);
 
   const CaptainMapControl = ({ deps = [] }) => {
     const map = useMap();
@@ -117,23 +116,18 @@ const CaptainRiding = () => {
 
   return (
     <div className="h-screen w-full bg-gray-50 flex flex-col relative overflow-hidden text-gray-800">
-
-      {/* 80% MAP */}
       <div className="h-[80vh] w-full relative z-0">
-        <MapContainer center={[lat, lng]} zoom={15} className="h-full w-full"
-           attributionControl={false}
-        >
+        <MapContainer center={[lat, lng]} zoom={15} className="h-full w-full" attributionControl={false}>
           <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
-          {currentRide?.pickup && currentRide?.destination && <Routing pickup={currentRide.pickup} destination={currentRide.destination} />}
+          {currentRide?.pickup && currentRide?.destination && (
+            <Routing pickup={currentRide.pickup} destination={currentRide.destination} />
+          )}
           <Marker position={[lat, lng]} icon={customCaptainIcon} />
           <CaptainMapControl deps={[lat, lng, currentRide?.pickup, currentRide?.destination]} />
         </MapContainer>
       </div>
 
-      {/* 20% INFO */}
       <div className="h-[20vh] min-h-[160px] bg-white rounded-t-3xl p-3 md:p-5 shadow-[0_-5px_20px_rgba(0,0,0,0.1)] z-10 flex flex-col justify-between">
-        
-        {/* Row 1: Passenger & Fare */}
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
             <img src={currentRide?.user?.profilePicture || "https://randomuser.me/api/portraits/men/45.jpg"} className="w-10 h-10 rounded-full border" alt="rider" />
@@ -143,12 +137,11 @@ const CaptainRiding = () => {
             </div>
           </div>
           <div className="text-right">
-            <span className="text-sm font-bold block">₹{fare}</span>
+            <span className="text-sm font-bold block">Rs {fare}</span>
             <span className="text-[9px] bg-green-100 text-green-700 px-1 rounded font-bold uppercase">En Route</span>
           </div>
         </div>
 
-        {/* Row 2: Compact Addresses */}
         <div className="flex flex-col gap-1 my-1">
           <div className="flex items-center gap-2">
             <i className="ri-record-circle-fill text-[10px] text-green-600"></i>
@@ -160,7 +153,6 @@ const CaptainRiding = () => {
           </div>
         </div>
 
-        {/* Row 3: Actions */}
         <div className="flex gap-2">
           <button onClick={() => window.open(`tel:${currentRide?.user?.phone || ""}`)} className="flex-1 bg-gray-100 py-2 rounded-lg text-xs font-bold active:bg-gray-200">
             <i className="ri-phone-fill mr-1"></i> Call
@@ -169,11 +161,13 @@ const CaptainRiding = () => {
             Complete Ride
           </button>
         </div>
-
       </div>
 
-      {/* FINISH RIDE SHEET */}
-      <div ref={finishrideref} className="fixed bottom-0 left-0 w-full z-[2000] bg-white shadow-2xl rounded-t-3xl" style={{ transform: "translateY(100%)", opacity: 0 }}>
+      <div
+        ref={finishrideref}
+        className="fixed bottom-0 left-0 w-full z-[2000] bg-white shadow-2xl rounded-t-3xl"
+        style={{ transform: "translateY(100%)", opacity: 0 }}
+      >
         <Finishride setfinishride={setfinishride} currentride={currentRide} />
       </div>
     </div>

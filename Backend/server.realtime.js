@@ -8,8 +8,8 @@ const server = http.createServer(app);
 
 (async () => {
   try {
-    await connectRedis();
-    await initializesocket(server);
+    const redisclient = await connectRedis();
+    await initializesocket(server, redisclient);
 
     server.listen(PORT, () => {
       console.log(`Realtime service running on port ${PORT}`);

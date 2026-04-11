@@ -6,10 +6,19 @@ const Ride = require('./models/ride.model')
 
 let io
 
+function parseCorsOrigins() {
+  const raw = process.env.SOCKET_CORS_ORIGINS || process.env.CLIENT_URL || '';
+  const list = raw
+    .split(',')
+    .map((value) => value.trim())
+    .filter(Boolean);
+  return list.length ? list : ['http://localhost:5173'];
+}
+
 async function initializesocket(server,redis) {
   io = new Server(server, {
     cors: {
-      origin: process.env.CLIENT_URL,
+      origin: parseCorsOrigins(),
       methods: ['GET', 'POST'],
       credentials: true
     }

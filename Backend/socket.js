@@ -1,4 +1,4 @@
-const socketIO = require('socket.io')
+const {Server} = require('socket.io')
 const { connectRedis } = require('./config/Redis')
 const { createAdapter } = require('@socket.io/redis-adapter')
 const captainModel = require('./models/captain.model')
@@ -7,7 +7,7 @@ const Ride = require('./models/ride.model')
 let io
 
 async function initializesocket(server) {
-  io = socketIO(server, {
+  io = new Server(server, {
     cors: {
       origin: process.env.CLIENT_URL,
       methods: ['GET', 'POST'],

@@ -9,8 +9,9 @@ const server = http.createServer(app);
 
 (async () => {
   try {
-    await connectRedis();
-    await initializesocket(server);
+    const redisclient = await connectRedis();
+    
+    await initializesocket(server,redisclient);
 
     server.listen(PORT, () => {
       console.log(`🚀 Server running on port ${PORT}`);

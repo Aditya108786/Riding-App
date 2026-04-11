@@ -1,12 +1,12 @@
 const {Server} = require('socket.io')
-const { connectRedis } = require('./config/Redis')
+
 const { createAdapter } = require('@socket.io/redis-adapter')
 const captainModel = require('./models/captain.model')
 const Ride = require('./models/ride.model')
 
 let io
 
-async function initializesocket(server) {
+async function initializesocket(server,redis) {
   io = new Server(server, {
     cors: {
       origin: process.env.CLIENT_URL,
@@ -15,7 +15,7 @@ async function initializesocket(server) {
     }
   })
 
-  const redis = await connectRedis()
+  
   if (!redis) {
     throw new Error('Redis client not initialized')
   }

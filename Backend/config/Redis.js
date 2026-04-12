@@ -15,7 +15,10 @@ async function connectRedis() {
   redis = createClient({
     url: redisUrl,
     socket: {
-      tls: process.env.REDIS_TLS === "true" || redisUrl.startsWith("rediss://"),
+      // Upstash rediss:// requires an object here for stable handshakes
+      tls: (process.env.REDIS_TLS === "true" || redisUrl.startsWith("rediss://")) 
+           ? { rejectUnauthorized: false } 
+           : false,
       keepAlive: 10000,
       reconnectStrategy: (retries) => Math.min(retries * 100, 3000)
     }

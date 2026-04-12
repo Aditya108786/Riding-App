@@ -8,8 +8,8 @@
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
-    "start:api": "node server.api.js",
-    "start:realtime": "node server.realtime.js",
+    "start:api": "node server.js",
+    "start:realtime": "node server.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "dependencies": {

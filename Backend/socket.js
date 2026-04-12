@@ -12,6 +12,8 @@ function parseCorsOrigins() {
     .split(',')
     .map((value) => value.trim())
     .filter(Boolean);
+    const finalOrigins = list.length ? list : ['http://localhost:5173'];
+  console.log("CORS Origins enabled:", finalOrigins); // Add this log // Add this log
   return list.length ? list : ['http://localhost:5173'];
 }
 

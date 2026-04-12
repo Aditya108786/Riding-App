@@ -14,7 +14,8 @@ export const SocketProvider = ({ children }) => {
   useEffect(() => {
     const newsocket = io(SERVICE_URLS.realtime ,{
        withCredentials:true,
-        transports: ["polling","websocket"], // 🔥 VERY IMPORTANT
+        transports: ["websocket"], // 🔥 VERY IMPORTANT
+        
       autoConnect: true
     });
     setSocket(newsocket); // ✅ store it in state
